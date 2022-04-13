@@ -38,8 +38,8 @@ frontPtr	 backPtr
 
 */
 
-#ifndef LINKED_QUEUE_
-#define LINKED_QUEUE_
+#ifndef PRIORITY_QUEUE_
+#define PRIORITY_QUEUE_
 
 #include "PNode.h"
 #include "QueueADT.h"

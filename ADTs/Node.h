@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef _NODE
 #define _NODE
 template < typename T>

@@ -1,7 +1,8 @@
 /** ADT list: Link-based implementation. Note: First Position = 1; ie index is 1, 2, 3, ....
 @file LinkedList.h */
+#pragma once
 #ifndef _LINKED_LIST
-#define _LINKED_LIST
+
 #include "ListInterface.h"
 #include "Node.h"
 #include "iostream" //for Print function

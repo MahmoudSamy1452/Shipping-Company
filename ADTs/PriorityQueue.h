@@ -1,4 +1,3 @@
-
 /*
 This is a program that implements the queue abstract data type using a linked list.
 The queue is implemented as a chain of linked nodes that has two pointers,
@@ -42,25 +41,26 @@ frontPtr	 backPtr
 #define PRIORITY_QUEUE_
 
 #include "PNode.h"
-#include "QueueADT.h"
+#include "PriorityQueueADT.h"
 #include <vector>
 using namespace std;
 
 
 template <typename T>
-class PriorityQueue :public QueueADT<T>
+class PriorityQueue :public PriorityQueueADT<T>
 {
 private:
 
 	PNode<T>* backPtr;
 	PNode<T>* frontPtr;
+
 public:
 	PriorityQueue();
 	bool isEmpty() const;
 	bool enqueue(const T& newEntry, const int& prio);
 	bool dequeue(T& frntEntry);
 	bool peek(T& frntEntry)  const;
-	~PriorityQueue();
+	virtual ~PriorityQueue();
 
 	//copy constructor
 	PriorityQueue(const PriorityQueue<T>& LQ);
@@ -107,20 +107,20 @@ Output: True if the operation is successful; otherwise false.
 template <typename T>
 bool PriorityQueue<T>::enqueue(const T& newEntry,const int& prio)
 {
-	PNode<T>* newNodePtr = new PNode<T>(newEntry);
+	PNode<T>* newNodePtr = new PNode<T>(newEntry, prio);
 	// Insert the new node
 	if (isEmpty())	//special case if this is the first node to insert
 		frontPtr = newNodePtr; // The queue is empty
-	elseif(newNodeptr->getPriority() > frontptr->getPriority())
+	else if(newNodePtr->getPriority() < frontPtr->getPriority())
 	{
 		newNodePtr->setNext(frontPtr);
 		frontPtr = newNodePtr; // The queue was not empty
 	}
 	else {
-		Pnode<T>* prev = frontPtr;
-		PNode<t>* after = prev->getNext();
+		PNode<T>* prev = frontPtr;
+		PNode<T>* after = prev->getNext();
 		while (after) {
-			if (newNodePtr->getPriority() > after->getPriority()) {
+			if (newNodePtr->getPriority() < after->getPriority()) {
 				prev->setNext(newNodePtr);
 				newNodePtr->setNext(after);
 				break;
@@ -229,5 +229,6 @@ PriorityQueue<T>::PriorityQueue(const PriorityQueue<T>& LQ)
 		NodePtr = NodePtr->getNext();
 	}
 }
+
 
 #endif

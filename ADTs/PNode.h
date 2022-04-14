@@ -1,6 +1,6 @@
 
-#ifndef _NODE
-#define _NODE
+#ifndef _PNODE
+#define _PNODE
 template < typename T>
 class PNode
 {
@@ -11,7 +11,7 @@ private:
 public:
 	PNode();
 	PNode(const T& r_Item, const int& prio);
-	PNode(const T& r_Item, Node<T>* nextNodePtr, const int& prio);
+	PNode(const T& r_Item, PNode<T>* nextNodePtr, const int& prio);
 	void setItem(const T& r_Item);
 	void setNext(PNode<T>* nextNodePtr);
 	void setPriority(const int& prio);
@@ -28,7 +28,7 @@ PNode<T>::PNode() : priority(0)
 }
 
 template < typename T>
-PNode<T>::PNode(const T& r_Item)
+PNode<T>::PNode(const T& r_Item, const int& prio)
 {
 	item = r_Item;
 	next = nullptr;
@@ -36,7 +36,7 @@ PNode<T>::PNode(const T& r_Item)
 }
 
 template < typename T>
-PNode<T>::PNode(const T& r_Item, PNode<T>* nextNodePtr)
+PNode<T>::PNode(const T& r_Item, PNode<T>* nextNodePtr, const int& prio)
 {
 	item = r_Item;
 	next = nextNodePtr;

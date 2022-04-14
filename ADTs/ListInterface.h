@@ -38,7 +38,7 @@ public:
 	@post The desired entry has been returned.
 	@param position The list position of the desired entry.
 	@return The entry at the given position. */
-	virtual ItemType getEntry(int position) const = 0;
+	virtual bool getEntry(int position, ItemType& Item) const = 0;
 	/** Replaces the entry at the given position in this list.
 	@pre 1 <= position <= getLength().
 	@post The entry at the given position is newEntry.

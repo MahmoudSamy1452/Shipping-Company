@@ -6,9 +6,13 @@ class Time
 
 public:
 
-	Time(int, int);
+	Time(int = 1, int = 0);
 
 	void incrementTime();
 
-	bool isTime(Time);
+	bool isTime(Time) const;
+
+	int toInt() const;
+
+	int toTime(int n); 
 };

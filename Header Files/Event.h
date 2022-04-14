@@ -1,17 +1,18 @@
+#pragma once
 #include "Time.h"
 #include "Company.h"
 
+class Company;
+
 class Event
 {
+protected:
+
 	Company* pCompany;
-	Time EvtTime;
+	Time evtTime;
 	int ID;
-
 public:
-
-	Event(int, int, int, Company*);
-
+	Event(Time, int, Company*);
 	virtual void Execute() = 0;
-
 	virtual ~Event();
 };

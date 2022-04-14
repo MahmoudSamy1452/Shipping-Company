@@ -1,8 +1,16 @@
 #include "../Header Files/PromoteEvent.h"
 
+PromoteEvent::PromoteEvent(Time evtTime, int ID, int extraMoney, Company* pCompany) : Event(evtTime, ID, pCompany)
+{
+	this->extraMoney = extraMoney;
+}
+
 void PromoteEvent::Execute()
 {
-	Cargo* promotedCargo = RemoveWaitingNormal(ID);
-	promotedCargo->setType("VIP");
-	AppendWaiting(promotedCargo);
+	Cargo* promotedCargo = nullptr;
+	if(pCompany->RemoveWaitingNormal(ID, promotedCargo))
+	{
+		promotedCargo->setType(VIP);
+		pCompany->AppendWaiting(promotedCargo);
+	}
 }

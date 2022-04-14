@@ -1,12 +1,12 @@
 #include "../Header Files/Event.h"
 
-Event::Event(int day, int hour, int id): EvtTime(day, hour), ID(id)
+Event::Event(Time evtTime, int id, Company* pCompany): evtTime(evtTime), ID(id), pCompany(pCompany)
 {
-
 }
 
 Event::~Event()
 {
 	
 }
+
 

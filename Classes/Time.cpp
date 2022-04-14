@@ -1,6 +1,6 @@
 #include "../Header Files/Time.h"
 
-Time::Time(int day = 1, int hour = 0):Day(day), Hour(hour)
+Time::Time(int day, int hour): Day(day), Hour(hour)
 {
 }
 
@@ -13,9 +13,17 @@ void Time::incrementTime()
 	}
 }
 
-bool Time::isTime(Time t)
+bool Time::isTime(Time t) const
 {
 	if (Day == t.Day && Hour == t.Hour)
 		return true;
 	return false;
 }
+
+int Time::toInt() const
+{
+	int num{ 0 };
+	num = Day * 24 + this->Hour;
+	return num;
+}
+

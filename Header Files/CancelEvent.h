@@ -3,16 +3,9 @@
 
 class CancelEvent : public Event
 {
-	char Type;
-	int Dist;
-	Time LoadTime;
-	int Cost;
 
 public:
 
-	CancelEvent();
-
+	CancelEvent(Time, int, Company*);
 	void Execute();
-
-	virtual ~CancelEvent();
 };

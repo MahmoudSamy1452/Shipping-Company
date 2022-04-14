@@ -3,13 +3,10 @@
 
 class PromoteEvent : public Event
 {
-	int ExtraMoney;
+	int extraMoney;
 
 public:
 
-	PromoteEvent();
-
+	PromoteEvent(Time, int ,int , Company*);
 	void Execute();
-
-	virtual ~PromoteEvent();
 };

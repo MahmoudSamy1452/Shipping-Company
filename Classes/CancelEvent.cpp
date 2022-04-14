@@ -1,6 +1,12 @@
 #include "../Header Files/CancelEvent.h"
 
+CancelEvent::CancelEvent(Time evtTime, int ID,Company* pCompany):Event(evtTime, ID, pCompany)
+{
+}
+
+
 void CancelEvent::Execute()
 {
-	RemoveWaitingNormal(ID);
+	Cargo* cancelledCargo = nullptr;
+	pCompany->RemoveWaitingNormal(ID, cancelledCargo);
 }

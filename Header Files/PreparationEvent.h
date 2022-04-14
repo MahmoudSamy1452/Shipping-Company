@@ -1,18 +1,16 @@
 #pragma once
 #include "Event.h"
+#include "Time.h"
 
 class PreparationEvent: public Event
 {
-	char Type;
-	int Dist;
-	Time LoadTime;
-	int Cost;
+	Type cargotype;
+	int dist;
+	Time loadTime;
+	int cost;
 
 public:
 
-	PreparationEvent();
-
-	void Execute() ;
-
-	virtual ~PreparationEvent();
+	PreparationEvent(Type, Time, int, int, Time, int, Company*);
+	virtual void Execute();
 };

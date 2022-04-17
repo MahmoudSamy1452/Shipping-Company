@@ -6,4 +6,11 @@ enum Type
 	Special,
 	Normal
 };
+
+enum InterfaceMode
+{
+	Interactive,
+	Step_By_Step,
+	Silent
+};
 #endif

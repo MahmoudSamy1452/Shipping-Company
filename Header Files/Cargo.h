@@ -9,22 +9,33 @@ private:
 
 	Time ready_time;
 	int loading_time;
-	Type type;
+	Type cargoType;
 	int ID;
 	int deliveryDistance;
 	int cost;
 	bool delivered;
 	bool assigned;
+	Time moveTime;
+	int deliveryTime;
 
 public:
 
-	Cargo(Type type, int ID, int deliveryDistance, Time readyTime, int loadingTime, int cost);
 
-	void setType(Type type);
+
+	Cargo(Type cargoType, int ID, int deliveryDistance, Time readyTime, int loadingTime, int cost);
+
+	void setType(Type cargoType);
+
+	void setDeliveryTime(int t);
+
+	int getDeliveryTime();
+	
 
 	Type getType();
 
 	void setDeliveryDistance(float deliveryDistance);
+
+	void addExtraMoney(int money);
 
 	float getDeliveryDistance();
 
@@ -32,11 +43,13 @@ public:
 
 	float getCost();
 
-	int getWaitingTime(Time t);
+	Time getWaitingTime();
 
 	bool isDelivered();
 
 	bool isAssigned();
+
+	
 
 	void setDeliveryStatus(bool status);
 
@@ -48,9 +61,15 @@ public:
 
 	Time getReadyTime();
 
-	Time getLoadingTime();
+	int getLoadingTime();
 
 	int getPriority();
+
+	void setMoveTime(Time t);
+	
+
+	Time getMoveTime();
+	
 
 	void setID(int ID);
 

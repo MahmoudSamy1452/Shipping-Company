@@ -1,7 +1,7 @@
 #include "../Header Files/PreparationEvent.h"
 #include "../Header Files/Company.h"
 
-PreparationEvent::PreparationEvent(Type cargoType, Time evtTime, int ID, int dist, Time loadTime, int cost, Company* pCompany): Event(evtTime, ID,  pCompany), loadTime(loadTime)
+PreparationEvent::PreparationEvent(Type cargoType, Time evtTime, int ID, int dist, int loadTime, int cost, Company* pCompany): Event(evtTime, ID,  pCompany), loadTime(loadTime)
 {
 	this->cargotype = cargoType;
 	this->dist = dist;
@@ -11,6 +11,7 @@ PreparationEvent::PreparationEvent(Type cargoType, Time evtTime, int ID, int dis
 
 void PreparationEvent::Execute()
 {
-	Cargo* newCargo = new Cargo(cargotype, ID, dist, loadTime, evtTime.toInt(), cost);
+	Cargo* newCargo = new Cargo(cargotype, ID, dist, evtTime, loadTime, cost);
 	pCompany->AppendWaiting(newCargo);
+	
 }

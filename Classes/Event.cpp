@@ -4,6 +4,10 @@ Event::Event(Time evtTime, int id, Company* pCompany): evtTime(evtTime), ID(id),
 {
 }
 
+Time Event::getTime() const{
+	return evtTime;
+}
+
 Event::~Event()
 {
 	

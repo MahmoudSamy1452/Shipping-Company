@@ -6,7 +6,15 @@ class Time
 
 public:
 
-	Time(int = 1, int = 0);
+	Time(int, int);
+
+	Time();
+
+	Time(int n);
+
+	int getDay();
+
+	int getHour();
 
 	void incrementTime();
 
@@ -15,4 +23,8 @@ public:
 	int toInt() const;
 
 	int toTime(int n); 
+
+	bool operator == (const Time& time) const;
+
+	Time operator - (const Time& time) const;
 };

@@ -1,26 +1,41 @@
 #include "../DEFS.h"
 #include "../Header Files/Cargo.h"
 
-Cargo::Cargo(Type type,int ID, int deliveryDistance, Time readyTime, int loadingTime,  int cost)
+Cargo::Cargo(Type cargoType,int ID, int deliveryDistance, Time readyTime, int loadingTime,  int cost)
 {
 	this->ID = ID;
-	this->type = type;
+	this->cargoType = cargoType;
 	this->deliveryDistance = deliveryDistance;
 	this->cost = cost;
 	this->ready_time = readyTime;
 	delivered = false;
 	assigned = false;
-	loading_time = loadingTime;
+	this->loading_time = loadingTime;
 }
 
-void Cargo::setType(Type type)
+void Cargo::Cargo::setType(Type cargoType)
 {
-	this->type = type;
+	this->cargoType = cargoType;
 }
+
+void Cargo::setDeliveryTime(int t)
+	{
+		deliveryTime = t;
+	}
+
+	void Cargo::addExtraMoney(int money)
+	{
+		cost += money;
+	}
+
+	int Cargo::getDeliveryTime()
+	{
+		return deliveryTime;
+	}
 
 Type Cargo::getType()
 {
-	return type;
+	return cargoType;
 }
 
 void Cargo::setDeliveryDistance(float deliveryDistance)
@@ -43,11 +58,6 @@ float Cargo::getCost()
 	return cost;
 }
 
-int Cargo::getWaitingTime(Time t)
-{
-	return (t.toInt() - ready_time.toInt());
-}
-
 bool Cargo::isDelivered()
 {
 	return delivered;
@@ -68,6 +78,16 @@ void Cargo::setAssignmentStatus(bool status)
 	assigned = status;
 }
 
+void Cargo::setMoveTime(Time t)
+{
+	moveTime = t;
+}
+
+Time Cargo::getMoveTime()
+{
+	return moveTime;
+}
+
 void Cargo::setReadyTime(Time t)
 {
 	this->ready_time = t;
@@ -83,14 +103,14 @@ Time Cargo::getReadyTime()
 	return ready_time;
 }
 
-Time Cargo::getLoadingTime()
+int Cargo::getLoadingTime()
 {
 	return loading_time;
 }
 
 int Cargo::getPriority()
 {
-	if (type != VIP)
+	if (cargoType != VIP)
 	{
 		return 0;
 	}
@@ -107,4 +127,9 @@ void Cargo::setID(int ID)
 int Cargo::getID()
 {
 	return ID;
+}
+
+Time Cargo::getWaitingTime()
+{
+	return moveTime - ready_time;
 }

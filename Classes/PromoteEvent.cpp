@@ -10,6 +10,7 @@ void PromoteEvent::Execute()
 	Cargo* promotedCargo = nullptr;
 	if(pCompany->RemoveWaitingNormal(ID, promotedCargo))
 	{
+		promotedCargo->addExtraMoney(extraMoney);
 		promotedCargo->setType(VIP);
 		pCompany->AppendWaiting(promotedCargo);
 	}

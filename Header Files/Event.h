@@ -2,6 +2,7 @@
 #include "Time.h"
 #include "Company.h"
 
+
 class Company;
 
 class Event
@@ -14,5 +15,6 @@ protected:
 public:
 	Event(Time, int, Company*);
 	virtual void Execute() = 0;
+	Time getTime() const;
 	virtual ~Event();
 };

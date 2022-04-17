@@ -6,11 +6,11 @@ class PreparationEvent: public Event
 {
 	Type cargotype;
 	int dist;
-	Time loadTime;
+	int loadTime;
 	int cost;
 
 public:
 
-	PreparationEvent(Type, Time, int, int, Time, int, Company*);
+	PreparationEvent(Type, Time, int, int, int, int, Company*);
 	virtual void Execute();
 };

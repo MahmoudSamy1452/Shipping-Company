@@ -1,12 +1,11 @@
 #include "../Header Files/Truck.h"
 
-Truck::Truck(Type type, int capacity, int maintenanceTime, int speed, int truckID)
+Truck::Truck(Type truckType, int capacity, int maintenanceTime, int speed, int truckID)
 {
 	this->numOfCargos = capacity; 
-	this->type = type;
+	this->truckType = truckType;
 	this->capacity = capacity;
 	this->maintenanceTime = maintenanceTime;
-	inMaintenance = false;
 	this->deliveryJourneys = 0;
 	this->speed = speed;
 	deliveryInterval = 0;
@@ -14,50 +13,25 @@ Truck::Truck(Type type, int capacity, int maintenanceTime, int speed, int truckI
 	this->truckID = truckID;
 }
 
-bool Truck::setInMaintenance(int deliveryJourneysBeforeMaintenance)
-{
-	if (deliveryJourneys >= deliveryJourneysBeforeMaintenance)
-	{
-		inMaintenance = true;
-		return true;
-	}
-	if (deliveryJourneysBeforeMaintenance == 0)
-		inMaintenance = false; //Maintenance is Over
-	return false;
-}
-
 void Truck::setdeliveryInterval()
 {
-	int distanceOfFurthest = 0;
-	int sumOfUnloadTimes = 0;
-	Cargo* ptr = nullptr;
-	for (int i = 0; i < numOfCargos; i++)
-	{
-		pCargo.getEntry(i, ptr);
-		if (ptr->getDeliveryDistance() > distanceOfFurthest)
-			distanceOfFurthest = ptr->getDeliveryDistance();
-	}
 	deliveryInterval = 2 * float((distanceOfFurthest / speed)) + sumOfUnloadTimes;
+}
+
+void Truck::setMoveTime(const Time& time)
+{
+	MoveTime = time;
 }
 
 Time Truck::getComebackTime()
 {
-	return MoveTime; //COME BACK LATER
+	return Time(MoveTime.toInt() + deliveryInterval); //COME BACK LATER
 	//float comebackTime = (MoveTime.toInt() + deliveryInterval);
 	//return comebackTime.t
 }
 
 float Truck::getTotalActiveTime()
 {
-	int distanceOfFurthest = 0;
-	int sumOfUnloadTimes = 0;
-	Cargo* ptr = nullptr;
-	for (int i = 0; i < numOfCargos; i++)
-	{
-		pCargo.getEntry(i, ptr);
-		if (ptr->getDeliveryDistance() > distanceOfFurthest)
-			distanceOfFurthest = ptr->getDeliveryDistance();
-	}
 	totalActiveTime =  float((distanceOfFurthest / speed)) + sumOfUnloadTimes;
 	return totalActiveTime;
 }
@@ -68,19 +42,21 @@ float Truck::getTruckUtilizationTime(int simulationTime)
 	return (numOfCargos / (capacity * deliveryJourneys) * (totalActiveTime / simulationTime)) * 100;
 }
 
-void Truck::insertInList(Cargo* &item)
+void Truck::insertInPriorityQueue(Cargo* &item)
 {
-	pCargo.insert(item->getID(), item);
+	pCargo.enqueue(item,item->getDeliveryDistance());
 	numOfCargos++;
-	if(numOfCargos == capacity)
-	{
-		setdeliveryInterval();
-	}
 }
 
-void Truck::removeFromList(Cargo* &item)
+void Truck::removeFromPriorityQueue(Cargo* &item)
 {
-	pCargo.remove(item->getID()); //Assuming position in list is ID
+	pCargo.dequeue(item);
+	if (pCargo.isEmpty())
+	{
+		distanceOfFurthest = item->getDeliveryDistance();
+		setdeliveryInterval();
+	}
+	sumOfUnloadTimes += item->getLoadingTime();
 }
 
 Truck::~Truck()

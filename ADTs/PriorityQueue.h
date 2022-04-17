@@ -105,34 +105,44 @@ Output: True if the operation is successful; otherwise false.
 */
 
 template <typename T>
-bool PriorityQueue<T>::enqueue(const T& newEntry,const int& prio)
-{
-	PNode<T>* newNodePtr = new PNode<T>(newEntry, prio);
-	// Insert the new node
-	if (isEmpty())	//special case if this is the first node to insert
-		frontPtr = newNodePtr; // The queue is empty
-	else if(newNodePtr->getPriority() < frontPtr->getPriority())
+	bool PriorityQueue<T>::enqueue(const T& newEntry, const int& prio)
 	{
-		newNodePtr->setNext(frontPtr);
-		frontPtr = newNodePtr; // The queue was not empty
-	}
-	else {
-		PNode<T>* prev = frontPtr;
-		PNode<T>* after = prev->getNext();
-		while (after) {
-			if (newNodePtr->getPriority() < after->getPriority()) {
-				prev->setNext(newNodePtr);
-				newNodePtr->setNext(after);
-				break;
+		PNode<T>* newNodePtr = new PNode<T>(newEntry, prio);
+		// Insert the new node
+		if (isEmpty())	//special case if this is the first node to insert
+		{
+			frontPtr = newNodePtr; // The queue is empty
+			backPtr = newNodePtr;
+			return true;
+		}
+		// The queue is empty
+		else if (newNodePtr->getPriority() < frontPtr->getPriority())
+		{
+			newNodePtr->setNext(frontPtr);
+			frontPtr = newNodePtr; // The queue was not empty
+			return true;
+		}
+		else {
+			PNode<T>* prev = frontPtr;
+			PNode<T>* after = prev->getNext();
+			while (after) {
+				if (newNodePtr->getPriority() < after->getPriority()) {
+					prev->setNext(newNodePtr);
+					newNodePtr->setNext(after);
+					return true;
+				}
+				after = after->getNext();
+				prev = prev->getNext();
+			}
+			if (!after) {
+				backPtr->setNext(newNodePtr);
+				backPtr = newNodePtr;
+				return true;
 			}
 		}
-		if (!after) {
-			backPtr->setNext(newNodePtr);
-			backPtr = newNodePtr;
-		}
+		return false;
 	}
-	return true;
-} // end enqueue
+ // end enqueue
 
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -12,6 +12,7 @@
 
 Company::Company()
 {
+	interface = new UI;
 }
 
 
@@ -141,7 +142,7 @@ void Company::FileLoading(const string filename)
 
 void Company::Simulate()
 {
-	string filename =  interface.readFilename();
+	string filename =  interface->readFilename();
 	FileLoading("Test1.txt");
 	Event* eve;
 	Cargo* removed;
@@ -158,10 +159,10 @@ void Company::Simulate()
 
 		//Check if any Normal Cargo reached autoP and promotes it
 		Cargo* C;
-		for(int i = 0; i < WaitingNC.getLength(); i++)
+		for(int i = 1; i < WaitingNC.getLength() + 1; i++)
 		{
 			WaitingNC.getEntry(i, C);
-			if (C->getWaitingTime() == autoP)
+			if (C->getWaitingTime(Clock) == autoP)
 			{
 				WaitingNC.remove(i);
 				C->setType(VIP);
@@ -180,133 +181,132 @@ void Company::Simulate()
 			if(WaitingVC.dequeue(removed))
 				DeliveredVC.enqueue(removed);
 		}*/
-		
-		Print();
-		interface.wait();
+		WaitingNC.Print();
+		interface->wait();
 		Clock.incrementTime();
 		count++;
 	}
 }
 
-void Company::Print()
-{
-	int WaitingCargos = WaitingNC.getLength() + WaitingSC.getLength() + WaitingVC.getLength();
-	string str = "\nCurrent time (Day:Hour): ";
-	interface.PrintString(str);
-	interface.printTime(Clock);
-	str = "\n";
-	Cargo* C;
-	str += to_string(WaitingCargos); 
-	str += " Waiting Cargos: ";
-	str += "[";
-	for (int i  = 0; i < WaitingNC.getLength(); i++)
-	{
-		WaitingNC.getEntry(i+1,C);
-		C->Print(str);
-		if (i == WaitingNC.getLength() - 1)
-			break;
-		str += ", ";
-	}
-	str += "]";
-	str += " (";
-	for (int i  = 0; i < WaitingSC.getLength(); i++)
-	{
-		WaitingSC.dequeue(C);
-		C->Print(str);
-		WaitingSC.enqueue(C);
-		if (i == WaitingSC.getLength() - 1)
-			break;
-		str += ", ";
-	}
-	str += ")";
-	str += " {";
-	LinkedQueue<Cargo*> tempQueue;
-	for (int i  = 0; i < WaitingVC.getLength() + tempQueue.getLength(); i++)
-	{
-		WaitingVC.dequeue(C);
-		C->Print(str);
-		tempQueue.enqueue(C);
-		if (WaitingVC.getLength() == 0)
-			break;
-		str += ", ";
-	}
-	for (int i = 0;i < tempQueue.getLength() + WaitingVC.getLength();i++)
-	{
-		tempQueue.dequeue(C);
-		WaitingVC.enqueue(C, C->getPriority());
-	}
-	str += "}";
-	interface.PrintBreakLine();
-	////////////////////////////////////////////////////////////////////////////////////
-	Truck* T;
-	int LoadingTrucks = LoadingNT.getLength() + LoadingST.getLength() + LoadingVT.getLength();
-	str += to_string(LoadingTrucks); 
-	str += " Loading Trucks: ";
-	for (int i=0;i<LoadingNT.getLength();i++){
-		LoadingNT.dequeue(T);
-		T->PrintLoading(str);
-		LoadingNT.enqueue(T);
-		if (i == LoadingNT.getLength() - 1)
-			break;
-		str += ", ";
-	}
-	for (int i=0;i<LoadingST.getLength();i++){
-		LoadingST.dequeue(T);
-		T->PrintLoading(str);
-		LoadingST.enqueue(T);
-		if (i == LoadingST.getLength() - 1)
-			break;
-		str += ", ";
-	}
-	for (int i=0;i<LoadingVT.getLength();i++){
-		LoadingVT.dequeue(T);
-		T->PrintLoading(str);
-		LoadingVT.enqueue(T);
-		if (i == LoadingVT.getLength() - 1)
-			break;
-		str += ", ";
-	}
-	interface.PrintBreakLine();
-	/////////////////////////////////////////////////////////////////////////////////
-	int EmptyTrucks = WaitingNT.getLength() + WaitingST.getLength() + WaitingVT.getLength();
-	str += to_string(EmptyTrucks); 
-	str += " Empty Trucks: ";
-	str += "[";
-	for (int i  = 0; i < WaitingNT.getLength(); i++)
-	{
-		WaitingNT.dequeue(T);
-		T->PrintEmpty(str);
-		if (i == WaitingNT.getLength() - 1)
-			break;
-		str += ", ";
-	}
-	str += "]";
-	str += " (";
-	for (int i  = 0; i < WaitingST.getLength(); i++)
-	{
-		WaitingST.dequeue(T);
-		T->PrintEmpty(str);
-		WaitingST.enqueue(T);
-		if (i == WaitingST.getLength() - 1)
-			break;
-		str += ", ";
-	}
-	str += ")";
-	str += " {";
-	for (int i  = 0; i < WaitingVT.getLength(); i++)
-	{
-		WaitingVT.dequeue(T);
-		T->PrintEmpty(str);
-		WaitingVT.enqueue(T);
-		if (i == WaitingVT.getLength() - 1)
-			break;
-		str += ", ";
-	}
-	str += "}";
-	interface.PrintString(str);
-	interface.PrintBreakLine();
-	///////////////////////////////////////////////////////////////
-}
+//void Company::Print()
+//{
+//	int WaitingCargos = WaitingNC.getLength() + WaitingSC.getLength() + WaitingVC.getLength();
+//	string str = "\nCurrent time (Day:Hour): ";
+//	interface->PrintString(str);
+//	interface->printTime(Clock);
+//	str = "\n";
+//	Cargo* C;
+//	str += to_string(WaitingCargos); 
+//	str += " Waiting Cargos: ";
+//	str += "[";
+//	for (int i  = 0; i < WaitingNC.getLength(); i++)
+//	{
+//		WaitingNC.getEntry(i+1,C);
+//		C->Print(str);
+//		if (i == WaitingNC.getLength() - 1)
+//			break;
+//		str += ", ";
+//	}
+//	str += "]";
+//	str += " (";
+//	for (int i  = 0; i < WaitingSC.getLength(); i++)
+//	{
+//		WaitingSC.dequeue(C);
+//		C->Print(str);
+//		WaitingSC.enqueue(C);
+//		if (i == WaitingSC.getLength() - 1)
+//			break;
+//		str += ", ";
+//	}
+//	str += ")";
+//	str += " {";
+//	LinkedQueue<Cargo*> tempQueue;
+//	for (int i  = 0; i < WaitingVC.getLength() + tempQueue.getLength(); i++)
+//	{
+//		WaitingVC.dequeue(C);
+//		C->Print(str);
+//		tempQueue.enqueue(C);
+//		if (WaitingVC.getLength() == 0)
+//			break;
+//		str += ", ";
+//	}
+//	for (int i = 0;i < tempQueue.getLength() + WaitingVC.getLength();i++)
+//	{
+//		tempQueue.dequeue(C);
+//		WaitingVC.enqueue(C, C->getPriority());
+//	}
+//	str += "}";
+//	interface->PrintBreakLine();
+//	////////////////////////////////////////////////////////////////////////////////////
+//	Truck* T;
+//	int LoadingTrucks = LoadingNT.getLength() + LoadingST.getLength() + LoadingVT.getLength();
+//	str += to_string(LoadingTrucks); 
+//	str += " Loading Trucks: ";
+//	for (int i=0;i<LoadingNT.getLength();i++){
+//		LoadingNT.dequeue(T);
+//		T->PrintLoading(str);
+//		LoadingNT.enqueue(T);
+//		if (i == LoadingNT.getLength() - 1)
+//			break;
+//		str += ", ";
+//	}
+//	for (int i=0;i<LoadingST.getLength();i++){
+//		LoadingST.dequeue(T);
+//		T->PrintLoading(str);
+//		LoadingST.enqueue(T);
+//		if (i == LoadingST.getLength() - 1)
+//			break;
+//		str += ", ";
+//	}
+//	for (int i=0;i<LoadingVT.getLength();i++){
+//		LoadingVT.dequeue(T);
+//		T->PrintLoading(str);
+//		LoadingVT.enqueue(T);
+//		if (i == LoadingVT.getLength() - 1)
+//			break;
+//		str += ", ";
+//	}
+//	interface->PrintBreakLine();
+//	/////////////////////////////////////////////////////////////////////////////////
+//	int EmptyTrucks = WaitingNT.getLength() + WaitingST.getLength() + WaitingVT.getLength();
+//	str += to_string(EmptyTrucks); 
+//	str += " Empty Trucks: ";
+//	str += "[";
+//	for (int i  = 0; i < WaitingNT.getLength(); i++)
+//	{
+//		WaitingNT.dequeue(T);
+//		T->PrintEmpty(str);
+//		if (i == WaitingNT.getLength() - 1)
+//			break;
+//		str += ", ";
+//	}
+//	str += "]";
+//	str += " (";
+//	for (int i  = 0; i < WaitingST.getLength(); i++)
+//	{
+//		WaitingST.dequeue(T);
+//		T->PrintEmpty(str);
+//		WaitingST.enqueue(T);
+//		if (i == WaitingST.getLength() - 1)
+//			break;
+//		str += ", ";
+//	}
+//	str += ")";
+//	str += " {";
+//	for (int i  = 0; i < WaitingVT.getLength(); i++)
+//	{
+//		WaitingVT.dequeue(T);
+//		T->PrintEmpty(str);
+//		WaitingVT.enqueue(T);
+//		if (i == WaitingVT.getLength() - 1)
+//			break;
+//		str += ", ";
+//	}
+//	str += "}";
+//	interface->PrintString(str);
+//	interface->PrintBreakLine();
+//	///////////////////////////////////////////////////////////////
+//}
 
 Company::~Company()
 {

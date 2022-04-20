@@ -1,21 +1,24 @@
 #include "../Header Files/UI.h"
+using namespace std;
 
-ostream& operator<<(ostream& output, const Truck& t)
+ostream& operator<<(ostream& output, Truck*& t)
 {
-	output << t.getID() << ", ";
+	output << t->truckID << ", ";
 	return output;
 }
-ostream& operator<<(ostream& output, const Cargo& c)
+
+ostream& operator << (ostream& output, Cargo*& c)
 {
-	output << c.getID() << ", ";
+	output << c->ID << ", ";
 	return output;
 }
+
 
 void UI::readInterfaceMode()
 {
 	int mode;
 	cout << "Choose Interface: (0)Interactive Mode (1)Step-By-Step Mode  (2)Silent Mode";
-	while (1)
+	while (true)
 	{
 		cin >> mode;
 		switch (mode)
@@ -39,7 +42,7 @@ InterfaceMode UI::getUImode()
 
 string UI::readFilename()
 {
-	string name = "";
+	string name;
 	cout << "Enter Filename: ";
 	cin >> name;
 	return name;
@@ -64,3 +67,4 @@ void UI::wait()
 {
 	cin.get();
 }
+

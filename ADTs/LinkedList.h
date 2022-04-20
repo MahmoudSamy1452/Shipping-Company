@@ -6,6 +6,7 @@
 #include "ListInterface.h"
 #include "Node.h"
 #include "iostream" //for Print function
+
 using namespace std;
 template < class ItemType>
 class LinkedList : public ListInterface<ItemType>
@@ -29,6 +30,7 @@ public:
 	int getLength() const;
 	bool insert(int newPosition, const ItemType& newEntry);
 	bool remove(int position);
+	bool search(int key, ItemType& obj);
 	void clear();
 	/** return false if position < 1 or
 	position > getLength(). */
@@ -36,6 +38,22 @@ public:
 	void Print() const;
 }; // end LinkedList
 #endif
+
+template < class ItemType>
+bool LinkedList<ItemType>::search(int key, ItemType& item)
+{
+	Node<ItemType>* p = headPtr;
+	while (p)
+	{
+		if (p->getItem() == key)
+		{
+			item = p->getItem();
+			return true;
+		}
+		p = p->getNext();
+	}
+	return false;
+}
 
 template < class ItemType>
 LinkedList<ItemType>::LinkedList() : headPtr(nullptr), itemCount(0)

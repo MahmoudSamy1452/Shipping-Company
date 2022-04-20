@@ -1,11 +1,11 @@
 #pragma once
+#include "UI.h"
 #include "../ADTs/LinkedList.h"
 #include "../ADTs/LinkedQueue.h"
 #include "../ADTs/PriorityQueue.h"
 #include "Event.h"
 #include "Cargo.h"
 #include "Truck.h"
-#include "UI.h"
 
 class Event;
 
@@ -32,17 +32,13 @@ class Company
 	LinkedQueue<Truck*> WaitingST;
 	LinkedQueue<Truck*> WaitingVT;
 
-	LinkedQueue<Truck*> MovingNT;
-	LinkedQueue<Truck*> MovingST;
-	LinkedQueue<Truck*> MovingVT;
+	PriorityQueue<Truck*> MovingT;
 
-	LinkedQueue<Truck*> LoadingNT;
-	LinkedQueue<Truck*> LoadingST;
-	LinkedQueue<Truck*> LoadingVT;
+	PriorityQueue<Truck*> LoadingT;
 
-	PriorityQueue<Truck*> TrucksinMaintenance;
+	PriorityQueue<Truck*> TrucksInMaintenance;
 
-	UI interface;
+	UI* interface;
 
 	public:
 

@@ -23,6 +23,11 @@ int Truck::getID() const
 	return truckID;
 }
 
+int Truck::getNoOfCargos() const
+{
+	return numOfCargos;
+}
+
 void Truck::setdeliveryInterval()
 {
 	deliveryInterval = 2 * float((distanceOfFurthest / speed)) + sumOfUnloadTimes;
@@ -73,6 +78,7 @@ void Truck::PrintEmpty(string& str)
 {
 	str += to_string(truckID);
 }
+
 void Truck::PrintLoading(string& str)
 {
 	str += to_string(truckID);

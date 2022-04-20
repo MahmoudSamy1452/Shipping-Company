@@ -1,6 +1,10 @@
 #include "../Header Files/Truck.h"
+#include "../ADTs/LinkedQueue.h"
+#include <string>
 
-Truck::Truck(Type truckType, int capacity, int maintenanceTime, int speed, int truckID)
+int Truck::currtruckID = 1;
+
+Truck::Truck(Type truckType, int capacity, int maintenanceTime, int speed)
 {
 	this->numOfCargos = capacity; 
 	this->truckType = truckType;
@@ -10,7 +14,13 @@ Truck::Truck(Type truckType, int capacity, int maintenanceTime, int speed, int t
 	this->speed = speed;
 	deliveryInterval = 0;
 	totalActiveTime = 0;
-	this->truckID = truckID;
+	truckID = currtruckID;
+	currtruckID++;
+}
+
+int Truck::getID() const
+{
+	return truckID;
 }
 
 void Truck::setdeliveryInterval()
@@ -57,6 +67,83 @@ void Truck::removeFromPriorityQueue(Cargo* &item)
 		setdeliveryInterval();
 	}
 	sumOfUnloadTimes += item->getLoadingTime();
+}
+
+void Truck::PrintEmpty(string& str)
+{
+	str += to_string(truckID);
+}
+void Truck::PrintLoading(string& str)
+{
+	str += to_string(truckID);
+	Cargo* C;
+	pCargo.peek(C);
+	Type cargotype = C->getType();
+	switch(cargotype)
+	{
+	case VIP:
+	{
+		str += " {";
+		LinkedQueue<Cargo*> tempQueue;
+		for (int i = 0; i < numOfCargos; i++)
+		{
+			pCargo.dequeue(C);
+			C->Print(str);
+			tempQueue.enqueue(C);
+			if (pCargo.getLength() == 0)
+				break;
+			str += ", ";
+		}
+		for (int i = 0; i < numOfCargos; i++)
+		{
+			tempQueue.dequeue(C);
+			pCargo.enqueue(C, C->getPriority());
+		}
+		str += "}";
+		break;
+	}
+	case Special:
+	{
+		str += " (";
+		LinkedQueue<Cargo*> tempQueue;
+		for (int i = 0; i < numOfCargos; i++)
+		{
+			pCargo.dequeue(C);
+			C->Print(str);
+			tempQueue.enqueue(C);
+			if (pCargo.getLength() == 0)
+				break;
+			str += ", ";
+		}
+		for (int i = 0; i < numOfCargos; i++)
+		{
+			tempQueue.dequeue(C);
+			pCargo.enqueue(C, C->getPriority());
+		}
+		break;
+	}
+	case Normal:
+	{
+		str += "[";
+		LinkedQueue<Cargo*> tempQueue;
+		for (int i = 0; i < numOfCargos; i++)
+		{
+			pCargo.dequeue(C);
+			C->Print(str);
+			tempQueue.enqueue(C);
+			if (pCargo.getLength() == 0)
+				break;
+			str += ", ";
+		}
+		for (int i = 0; i < numOfCargos; i++)
+		{
+			tempQueue.dequeue(C);
+			pCargo.enqueue(C, C->getPriority());
+		}
+		str += "]";
+		break;
+	}
+	}
 }
 
 Truck::~Truck()

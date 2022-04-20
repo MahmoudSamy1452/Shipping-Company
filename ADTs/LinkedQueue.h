@@ -60,6 +60,7 @@ public:
 	bool enqueue(const T& newEntry);
 	bool dequeue(T& frntEntry);
 	bool peek(T& frntEntry)  const;
+	int getLength() const;
 	~LinkedQueue();
 
 	//copy constructor
@@ -171,6 +172,18 @@ bool LinkedQueue<T>::peek(T& frntEntry) const
 Function: destructor
 removes all nodes from the queue by dequeuing them
 */
+
+template<typename T>
+int LinkedQueue<T>::getLength() const{
+	int count = 0;
+	Node<T>* p = frontPtr;
+	while(p){
+		count++;
+		p = p->getNext();
+	}
+	return count;
+}
+
 template <typename T>
 LinkedQueue<T>::~LinkedQueue()
 {

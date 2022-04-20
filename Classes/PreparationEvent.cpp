@@ -15,3 +15,8 @@ void PreparationEvent::Execute()
 	pCompany->AppendWaiting(newCargo);
 	
 }
+
+PreparationEvent::~PreparationEvent()
+{
+
+}

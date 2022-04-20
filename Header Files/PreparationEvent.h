@@ -13,4 +13,5 @@ public:
 
 	PreparationEvent(Type, Time, int, int, int, int, Company*);
 	virtual void Execute();
+	virtual ~PreparationEvent();
 };

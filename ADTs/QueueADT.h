@@ -21,6 +21,10 @@ public:
      @return  True if the addition is successful or false if not. */
     virtual bool enqueue(const T& newEntry) = 0;
 
+    /** Gets the current number of entries in this queue.
+	@return The integer number of entries currently in the list. */
+	virtual int getLength() const = 0;
+
     /** Copies the front item of the queue to the passed parameter and removes it from queue
      @post  If the operation was successful, the front of the queue
         would be copied to FrontEntry parameter and removed from the queue.

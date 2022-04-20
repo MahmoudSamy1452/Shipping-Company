@@ -28,15 +28,21 @@ class Company
 	LinkedQueue<Cargo*> DeliveredSC;
 	LinkedQueue<Cargo*> DeliveredVC;
 
-	LinkedQueue<Truck*> WaitingTruckNC;
-	LinkedQueue<Truck*> WaitingTruckSC;
-	LinkedQueue<Truck*> WaitingTruckVC;
+	LinkedQueue<Truck*> WaitingNT;
+	LinkedQueue<Truck*> WaitingST;
+	LinkedQueue<Truck*> WaitingVT;
 
-	LinkedQueue<Truck*> MovingTruckNC;
-	LinkedQueue<Truck*> MovingTruckSC;
-	LinkedQueue<Truck*> MovingTruckVC;
+	LinkedQueue<Truck*> MovingNT;
+	LinkedQueue<Truck*> MovingST;
+	LinkedQueue<Truck*> MovingVT;
+
+	LinkedQueue<Truck*> LoadingNT;
+	LinkedQueue<Truck*> LoadingST;
+	LinkedQueue<Truck*> LoadingVT;
 
 	PriorityQueue<Truck*> TrucksinMaintenance;
+
+	UI interface;
 
 	public:
 
@@ -46,5 +52,6 @@ class Company
 	bool RemoveWaitingNormal(int, Cargo*&);
 	void FileLoading(const string filename);
 	void Simulate();
+	void Print();
 	~Company();
 };

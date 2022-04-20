@@ -21,23 +21,24 @@ void Company::AppendWaiting(Cargo* newCargo)
 	switch (type)
 	{
 	case 2:
-		WaitingNC.insert(WaitingNC.getLength(), newCargo);
+		WaitingNC.insert(WaitingNC.getLength()+1, newCargo);
+		break;
 	case 1:
 		WaitingSC.enqueue(newCargo);
+		break;
 	default:
 		WaitingVC.enqueue(newCargo, newCargo->getPriority());
 	}
-
 }
 
 bool Company::RemoveWaitingNormal(int ID, Cargo* &removedCargo)
 {
 	int size = WaitingNC.getLength();
 	for(int i=0;i<size;i++){
-		WaitingNC.getEntry(i, removedCargo);
+		WaitingNC.getEntry(i+1, removedCargo);
 		if (removedCargo->getID() == ID)
 		{
-			WaitingNC.remove(i);
+			WaitingNC.remove(i+1);
 			return true;
 		}
 	}
@@ -47,19 +48,11 @@ bool Company::RemoveWaitingNormal(int ID, Cargo* &removedCargo)
 void Company::FileLoading(const string filename)
 {
 	//temporary
-	int NTspeed;
-	int STspeed;
-	int VTspeed;
+	int NTspeed, STspeed, VTspeed;
 
-	int NTcap;
-	int STcap;
-	int VTcap;
+	int NTcap, STcap, VTcap;
 
-	int NTtrips;
-	int STtrips;
-	int VTtrips;
-
-	int eventCount;
+	int NTtrips, STtrips, VTtrips;
 
 	ifstream inFile;
 	// input name
@@ -75,96 +68,110 @@ void Company::FileLoading(const string filename)
 
 		for (int i = 0; i < NTcount; i++)
 		{
-			Truck* t = new Truck(Normal, NTcap, NTtrips, NTspeed, i);
-			//put in list
+			Truck* t = new Truck(Normal, NTcap, NTtrips, NTspeed);
+			WaitingNT.enqueue(t);
 		}
 
 		for (int i = 0; i < STcount; i++)
 		{
-			Truck* t = new Truck(Special, STcap, STtrips, STspeed, i);
-			//put in list
+			Truck* t = new Truck(Special, STcap, STtrips, STspeed);
+			WaitingST.enqueue(t);
+			
 		}
 
-		for (int i = 0; i < NTcount; i++)
+		for (int i = 0; i < VTcount; i++)
 		{
-			Truck* t = new Truck(VIP, VTcap, VTtrips, VTspeed, i);
-			//put in list
+			Truck* t = new Truck(VIP, VTcap, VTtrips, VTspeed);
+			WaitingVT.enqueue(t);
 		}
 
-		inFile >> autoP >> maxW >> eventCount;
+		inFile >> autoP >> maxW;
 
 		//Events
 
-		int numOfEvents{ 0 };
+		int numOfEvents, day, hours, id, dist, LT, cost;
+		char eventType, cargoType, temp;
+
 		inFile >> numOfEvents;
+		
 		for (int i = 0; i < numOfEvents; i++)
 		{
-			char eventType{ 0 };
-			char cargoType{ 0 };
-			int day{ 0 };
-			int hours{ 0 };
-			int id{ 0 };
-			int dist{ 0 };
-			int LT{ 0 };
-			int cost{ 0 };
+			
 			inFile >> eventType;
-			inFile >> cargoType;
-			inFile >> day >> hours >> id >> dist >> LT >> cost;
-			Time eTime(day, hours);
 			if (eventType == 'R')
 			{
+				inFile >> cargoType;
+				inFile >> day >> temp >> hours >> id >> dist >> LT >> cost;
+				Time eTime(day, hours);
 				if (cargoType == 'N')
 				{
-					PreparationEvent ev(Normal, eTime, id, dist, LT, cost, this);
-					EventList.enqueue(&ev);
+					Event* ev = new PreparationEvent(Normal, eTime, id, dist, LT, cost, this);
+					EventList.enqueue(ev);
 
 				}
 				else if (cargoType == 'S')
 				{
-					PreparationEvent ev(Special, eTime, id, dist, LT, cost, this);
-					EventList.enqueue(&ev);
+					Event* ev = new PreparationEvent(Special, eTime, id, dist, LT, cost, this);
+					EventList.enqueue(ev);
 
 				}
 				else if (cargoType == 'V')
 				{
-					PreparationEvent ev(VIP, eTime, id, dist, LT, cost, this);
-					EventList.enqueue(&ev);
-
+					Event* ev = new PreparationEvent(VIP, eTime, id, dist, LT, cost, this);
+					EventList.enqueue(ev);
 				}
 			}
 			else if (eventType == 'X')
 			{
-
-				CancelEvent ev(eTime, id, this);
-				EventList.enqueue(&ev);
-
+				inFile >> day >> temp >> hours >> id;
+				Time eTime(day, hours);
+				Event* ev = new CancelEvent(eTime, id, this);
+				EventList.enqueue(ev);
 			}
 			else if (eventType == 'P')
 			{
-				PromoteEvent ev(eTime, id, cost, this);
-				EventList.enqueue(&ev);
-
+				inFile >> day >> temp >> hours >> id >> cost;
+				Time eTime(day, hours);
+				Event* ev = new PromoteEvent(eTime, id, cost, this);
+				EventList.enqueue(ev);
 			}
-
 		}
 	}
 }
 
 void Company::Simulate()
 {
-	UI Interface;
-	string filename = Interface.readFilename();
-	FileLoading(filename);
+	string filename =  interface.readFilename();
+	FileLoading("Test1.txt");
 	Event* eve;
 	Cargo* removed;
 	int count = 0;
-	while(!EventList.isEmpty() || !WaitingNC.isEmpty() || !WaitingSC.isEmpty() || !WaitingVC.isEmpty()){
+	while(!EventList.isEmpty() || !WaitingNC.isEmpty() || !WaitingSC.isEmpty() || !WaitingVC.isEmpty())
+	{
 		EventList.peek(eve);
-		if (eve->getTime() == Clock){
+		while (eve->getTime() == Clock && !EventList.isEmpty())
+		{
 			eve->Execute();
+			EventList.dequeue(eve);
+			EventList.peek(eve);
 		}
-		if(count % 5 == 0 && count != 0){
-			if (WaitingNC.getEntry(1, removed)){
+
+		//Check if any Normal Cargo reached autoP and promotes it
+		Cargo* C;
+		for(int i = 0; i < WaitingNC.getLength(); i++)
+		{
+			WaitingNC.getEntry(i, C);
+			if (C->getWaitingTime() == autoP)
+			{
+				WaitingNC.remove(i);
+				C->setType(VIP);
+				WaitingVC.enqueue(C, C->getPriority());
+			}
+		}
+		/*if(count % 5 == 0 && count != 0)
+		{
+			if (WaitingNC.getEntry(1, removed))
+			{
 				DeliveredNC.enqueue(removed);
 				WaitingNC.remove(1);
 			}
@@ -172,10 +179,133 @@ void Company::Simulate()
 				DeliveredSC.enqueue(removed);
 			if(WaitingVC.dequeue(removed))
 				DeliveredVC.enqueue(removed);
-		}
-			Clock.incrementTime();
-			count++;
+		}*/
+		
+		Print();
+		interface.wait();
+		Clock.incrementTime();
+		count++;
 	}
+}
+
+void Company::Print()
+{
+	int WaitingCargos = WaitingNC.getLength() + WaitingSC.getLength() + WaitingVC.getLength();
+	string str = "\nCurrent time (Day:Hour): ";
+	interface.PrintString(str);
+	interface.printTime(Clock);
+	str = "\n";
+	Cargo* C;
+	str += to_string(WaitingCargos); 
+	str += " Waiting Cargos: ";
+	str += "[";
+	for (int i  = 0; i < WaitingNC.getLength(); i++)
+	{
+		WaitingNC.getEntry(i+1,C);
+		C->Print(str);
+		if (i == WaitingNC.getLength() - 1)
+			break;
+		str += ", ";
+	}
+	str += "]";
+	str += " (";
+	for (int i  = 0; i < WaitingSC.getLength(); i++)
+	{
+		WaitingSC.dequeue(C);
+		C->Print(str);
+		WaitingSC.enqueue(C);
+		if (i == WaitingSC.getLength() - 1)
+			break;
+		str += ", ";
+	}
+	str += ")";
+	str += " {";
+	LinkedQueue<Cargo*> tempQueue;
+	for (int i  = 0; i < WaitingVC.getLength() + tempQueue.getLength(); i++)
+	{
+		WaitingVC.dequeue(C);
+		C->Print(str);
+		tempQueue.enqueue(C);
+		if (WaitingVC.getLength() == 0)
+			break;
+		str += ", ";
+	}
+	for (int i = 0;i < tempQueue.getLength() + WaitingVC.getLength();i++)
+	{
+		tempQueue.dequeue(C);
+		WaitingVC.enqueue(C, C->getPriority());
+	}
+	str += "}";
+	interface.PrintBreakLine();
+	////////////////////////////////////////////////////////////////////////////////////
+	Truck* T;
+	int LoadingTrucks = LoadingNT.getLength() + LoadingST.getLength() + LoadingVT.getLength();
+	str += to_string(LoadingTrucks); 
+	str += " Loading Trucks: ";
+	for (int i=0;i<LoadingNT.getLength();i++){
+		LoadingNT.dequeue(T);
+		T->PrintLoading(str);
+		LoadingNT.enqueue(T);
+		if (i == LoadingNT.getLength() - 1)
+			break;
+		str += ", ";
+	}
+	for (int i=0;i<LoadingST.getLength();i++){
+		LoadingST.dequeue(T);
+		T->PrintLoading(str);
+		LoadingST.enqueue(T);
+		if (i == LoadingST.getLength() - 1)
+			break;
+		str += ", ";
+	}
+	for (int i=0;i<LoadingVT.getLength();i++){
+		LoadingVT.dequeue(T);
+		T->PrintLoading(str);
+		LoadingVT.enqueue(T);
+		if (i == LoadingVT.getLength() - 1)
+			break;
+		str += ", ";
+	}
+	interface.PrintBreakLine();
+	/////////////////////////////////////////////////////////////////////////////////
+	int EmptyTrucks = WaitingNT.getLength() + WaitingST.getLength() + WaitingVT.getLength();
+	str += to_string(EmptyTrucks); 
+	str += " Empty Trucks: ";
+	str += "[";
+	for (int i  = 0; i < WaitingNT.getLength(); i++)
+	{
+		WaitingNT.dequeue(T);
+		T->PrintEmpty(str);
+		if (i == WaitingNT.getLength() - 1)
+			break;
+		str += ", ";
+	}
+	str += "]";
+	str += " (";
+	for (int i  = 0; i < WaitingST.getLength(); i++)
+	{
+		WaitingST.dequeue(T);
+		T->PrintEmpty(str);
+		WaitingST.enqueue(T);
+		if (i == WaitingST.getLength() - 1)
+			break;
+		str += ", ";
+	}
+	str += ")";
+	str += " {";
+	for (int i  = 0; i < WaitingVT.getLength(); i++)
+	{
+		WaitingVT.dequeue(T);
+		T->PrintEmpty(str);
+		WaitingVT.enqueue(T);
+		if (i == WaitingVT.getLength() - 1)
+			break;
+		str += ", ";
+	}
+	str += "}";
+	interface.PrintString(str);
+	interface.PrintBreakLine();
+	///////////////////////////////////////////////////////////////
 }
 
 Company::~Company()

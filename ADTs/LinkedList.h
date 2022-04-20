@@ -210,7 +210,6 @@ void LinkedList<ItemType>::Print() const
 	for (int i = 1; i <= itemCount; i++)
 	{
 		getEntry(i, temp);
-		cout << temp << endl;
+		cout << temp << " ";
 	}
-	cout << "NULL" << endl;
 }

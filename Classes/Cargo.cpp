@@ -1,5 +1,6 @@
 #include "../DEFS.h"
 #include "../Header Files/Cargo.h"
+#include <string>
 
 Cargo::Cargo(Type cargoType,int ID, int deliveryDistance, Time readyTime, int loadingTime,  int cost)
 {
@@ -114,8 +115,7 @@ int Cargo::getPriority()
 	{
 		return 0;
 	}
-	int priority{ 0 };
-	priority = (ready_time.toInt() * deliveryDistance) / (cost * loading_time);
+	int priority = ready_time.toInt() + deliveryDistance * 2 + cost * 3 + loading_time * 2;
 	return priority;
 }
 
@@ -124,7 +124,7 @@ void Cargo::setID(int ID)
 	this->ID = ID;
 }
 
-int Cargo::getID()
+int Cargo::getID() const
 {
 	return ID;
 }
@@ -132,4 +132,8 @@ int Cargo::getID()
 Time Cargo::getWaitingTime()
 {
 	return moveTime - ready_time;
+}
+
+void Cargo::Print(std::string& str){
+	str += std::to_string(ID);
 }

@@ -168,7 +168,8 @@
     <ClCompile Include="Classes\Time.cpp" />
     <ClCompile Include="Classes\Truck.cpp" />
     <ClCompile Include="Classes\UI.cpp" />
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Source.cpp" />
+    <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />

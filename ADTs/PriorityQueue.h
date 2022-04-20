@@ -60,6 +60,7 @@ public:
 	bool enqueue(const T& newEntry, const int& prio);
 	bool dequeue(T& frntEntry);
 	bool peek(T& frntEntry)  const;
+	int getLength() const;
 	virtual ~PriorityQueue();
 
 	//copy constructor
@@ -192,6 +193,18 @@ bool PriorityQueue<T>::peek(T& frntEntry) const
 	return true;
 
 }
+
+template<typename T>
+int PriorityQueue<T>::getLength() const{
+	int count = 0;
+	PNode<T>* p = frontPtr;
+	while(p){
+		count++;
+		p = p->getNext();
+	}
+	return count;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////
 /*
 Function: destructor

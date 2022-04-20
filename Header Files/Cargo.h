@@ -1,6 +1,7 @@
 #pragma once
 #include "../DEFS.h"
 #include "Time.h"
+#include <string>
 
 
 class Cargo
@@ -73,7 +74,9 @@ public:
 
 	void setID(int ID);
 
-	int getID();
+	int getID() const;
+
+	void Print(std::string& str);
 
 };
 

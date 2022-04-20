@@ -4,11 +4,17 @@ using namespace std;
 
 #include "../DEFS.h"
 #include "Time.h"
+#include "Truck.h"
 
 class UI
 {
+	InterfaceMode UImode;
 public:
-	InterfaceMode readInterfaceMode();
+	void readInterfaceMode();
+	InterfaceMode getUImode();
 	string readFilename();
 	void printTime(Time t);
+	void PrintString(const string& str);
+	void PrintBreakLine();
+	void wait();
 };

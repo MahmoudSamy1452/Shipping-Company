@@ -34,6 +34,10 @@ public:
      @return  The front of the queue. */
     virtual bool peek(T& FrontEntry) const = 0;
 
+     /** Gets the current number of entries in this queue.
+	@return The integer number of entries currently in the list. */
+	virtual int getLength() const = 0;
+
     /** Destroys this queue and frees its memory. */
     virtual ~PriorityQueueADT() { }
 }; // end QueueADT

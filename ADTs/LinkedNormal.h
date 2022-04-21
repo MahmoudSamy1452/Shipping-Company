@@ -20,5 +20,6 @@ public:
 			i++;
 			p = p->getNext();
 		}
+		return -1;
 	}
 };

@@ -8,8 +8,10 @@ PromoteEvent::PromoteEvent(Time evtTime, int ID, int extraMoney, Company* pCompa
 void PromoteEvent::Execute()
 {
 	Cargo* promotedCargo = nullptr;
-	pCompany->RemoveWaitingNormal(ID, promotedCargo);
-	promotedCargo->addExtraMoney(extraMoney);
-	promotedCargo->setType(VIP);
-	pCompany->AppendWaiting(promotedCargo);
+	if (pCompany->RemoveWaitingNormal(ID, promotedCargo))
+	{
+		promotedCargo->addExtraMoney(extraMoney);
+		promotedCargo->setType(VIP);
+		pCompany->AppendWaiting(promotedCargo);
+	}
 }

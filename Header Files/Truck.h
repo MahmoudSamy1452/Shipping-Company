@@ -28,8 +28,6 @@ public:
 	int getID() const;
 	Type getType() const;
 	int getNoOfCargos() const;
-	//void PrintEmpty(string& str);
-	//void PrintLoading(string& str);
 	void PrintMovingCargo() const;
 	void setMoveTime(const Time& time);
 	void setdeliveryInterval();

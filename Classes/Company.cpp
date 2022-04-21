@@ -31,10 +31,10 @@ void Company::AppendWaiting(Cargo* newCargo)
 	}
 }
 
-void Company::RemoveWaitingNormal(int ID, Cargo* &removedCargo)
+bool Company::RemoveWaitingNormal(int ID, Cargo* &removedCargo)
 {
 	int i = WaitingNC.search(ID, removedCargo);
-	WaitingNC.remove(i);
+	return WaitingNC.remove(i);
 }
 
 int Company::getLengthOfLists(int &LT, int &ET, int &MC, int &ICT, int &DC)
@@ -179,7 +179,7 @@ void Company::Simulate()
 				WaitingVC.enqueue(C, C->getPriority());
 			}
 		}
-		/*if(count % 5 == 0 && count != 0)
+		if(count % 5 == 0 && count != 0)
 		{
 			if (WaitingNC.getEntry(1, removed))
 			{
@@ -190,7 +190,7 @@ void Company::Simulate()
 				DeliveredSC.enqueue(removed);
 			if(WaitingVC.dequeue(removed))
 				DeliveredVC.enqueue(removed);
-		}*/
+		}
 		interface->PrintHour();
 		interface->wait();
 		Clock.incrementTime();

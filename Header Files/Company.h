@@ -4,7 +4,6 @@
 #include "../ADTs/LinkedQueue.h"
 #include "Event.h"
 #include "Truck.h"
-#include "Cargo.h"
 
 class Event;
 class UI;
@@ -48,7 +47,7 @@ class Company
 	Company();
 
 	void AppendWaiting(Cargo*);
-	void RemoveWaitingNormal(int, Cargo*&);
+	bool RemoveWaitingNormal(int, Cargo*&);
 
 	void PrintWaitingNC();
 	void PrintWaitingSC();

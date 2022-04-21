@@ -18,6 +18,7 @@ public:
 	T getItem() const;
 	PNode<T>* getNext() const;
 	int getPriority() const;
+	void Print() const;
 }; // end Node
 #endif
 

@@ -1,20 +1,25 @@
 #pragma once
 #include <iostream>
+#include "../DEFS.h"
+
 using namespace std;
 
-#include "../DEFS.h"
-#include "Time.h"
-#include "Truck.h"
+class Company;
+class Time;
+class Truck;
 
 class UI
 {
 	InterfaceMode UImode;
+	Company* company;
 public:
+	UI(Company*);
 	void readInterfaceMode();
 	InterfaceMode getUImode();
 	string readFilename();
 	void printTime(Time t);
-	void PrintString(const string& str);
 	void PrintBreakLine();
+	void PrintHour();
 	void wait();
+	static void PrintTruck(Truck* t);
 };

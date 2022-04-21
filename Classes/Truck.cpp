@@ -6,7 +6,7 @@ int Truck::currtruckID = 1;
 
 Truck::Truck(Type truckType, int capacity, int maintenanceTime, int speed)
 {
-	this->numOfCargos = capacity; 
+	this->numOfCargos = 0; 
 	this->truckType = truckType;
 	this->capacity = capacity;
 	this->maintenanceTime = maintenanceTime;
@@ -21,6 +21,11 @@ Truck::Truck(Type truckType, int capacity, int maintenanceTime, int speed)
 int Truck::getID() const
 {
 	return truckID;
+}
+
+Type Truck::getType() const
+{
+	return truckType;
 }
 
 int Truck::getNoOfCargos() const
@@ -66,6 +71,7 @@ void Truck::insertInPriorityQueue(Cargo* &item)
 void Truck::removeFromPriorityQueue(Cargo* &item)
 {
 	pCargo.dequeue(item);
+	numOfCargos--;
 	if (pCargo.isEmpty())
 	{
 		distanceOfFurthest = item->getDeliveryDistance();
@@ -74,83 +80,87 @@ void Truck::removeFromPriorityQueue(Cargo* &item)
 	sumOfUnloadTimes += item->getLoadingTime();
 }
 
-void Truck::PrintEmpty(string& str)
+void Truck::PrintMovingCargo() const
 {
-	str += to_string(truckID);
+	pCargo.Print();
 }
+//void Truck::PrintEmpty(string& str)
+//{
+//	str += to_string(truckID);
+//}
 
-void Truck::PrintLoading(string& str)
-{
-	str += to_string(truckID);
-	Cargo* C;
-	pCargo.peek(C);
-	Type cargotype = C->getType();
-	switch(cargotype)
-	{
-	case VIP:
-	{
-		str += " {";
-		LinkedQueue<Cargo*> tempQueue;
-		for (int i = 0; i < numOfCargos; i++)
-		{
-			pCargo.dequeue(C);
-			C->Print(str);
-			tempQueue.enqueue(C);
-			if (pCargo.getLength() == 0)
-				break;
-			str += ", ";
-		}
-		for (int i = 0; i < numOfCargos; i++)
-		{
-			tempQueue.dequeue(C);
-			pCargo.enqueue(C, C->getPriority());
-		}
-		str += "}";
-		break;
-	}
-	case Special:
-	{
-		str += " (";
-		LinkedQueue<Cargo*> tempQueue;
-		for (int i = 0; i < numOfCargos; i++)
-		{
-			pCargo.dequeue(C);
-			C->Print(str);
-			tempQueue.enqueue(C);
-			if (pCargo.getLength() == 0)
-				break;
-			str += ", ";
-		}
-		for (int i = 0; i < numOfCargos; i++)
-		{
-			tempQueue.dequeue(C);
-			pCargo.enqueue(C, C->getPriority());
-		}
-		break;
-	}
-	case Normal:
-	{
-		str += "[";
-		LinkedQueue<Cargo*> tempQueue;
-		for (int i = 0; i < numOfCargos; i++)
-		{
-			pCargo.dequeue(C);
-			C->Print(str);
-			tempQueue.enqueue(C);
-			if (pCargo.getLength() == 0)
-				break;
-			str += ", ";
-		}
-		for (int i = 0; i < numOfCargos; i++)
-		{
-			tempQueue.dequeue(C);
-			pCargo.enqueue(C, C->getPriority());
-		}
-		str += "]";
-		break;
-	}
-	}
-}
+//void Truck::PrintLoading(string& str)
+//{
+//	str += to_string(truckID);
+//	Cargo* C;
+//	pCargo.peek(C);
+//	Type cargotype = C->getType();
+//	switch(cargotype)
+//	{
+//	case VIP:
+//	{
+//		str += " {";
+//		LinkedQueue<Cargo*> tempQueue;
+//		for (int i = 0; i < numOfCargos; i++)
+//		{
+//			pCargo.dequeue(C);
+//			C->Print(str);
+//			tempQueue.enqueue(C);
+//			if (pCargo.getLength() == 0)
+//				break;
+//			str += ", ";
+//		}
+//		for (int i = 0; i < numOfCargos; i++)
+//		{
+//			tempQueue.dequeue(C);
+//			pCargo.enqueue(C, C->getPriority());
+//		}
+//		str += "}";
+//		break;
+//	}
+//	case Special:
+//	{
+//		str += " (";
+//		LinkedQueue<Cargo*> tempQueue;
+//		for (int i = 0; i < numOfCargos; i++)
+//		{
+//			pCargo.dequeue(C);
+//			C->Print(str);
+//			tempQueue.enqueue(C);
+//			if (pCargo.getLength() == 0)
+//				break;
+//			str += ", ";
+//		}
+//		for (int i = 0; i < numOfCargos; i++)
+//		{
+//			tempQueue.dequeue(C);
+//			pCargo.enqueue(C, C->getPriority());
+//		}
+//		break;
+//	}
+//	case Normal:
+//	{
+//		str += "[";
+//		LinkedQueue<Cargo*> tempQueue;
+//		for (int i = 0; i < numOfCargos; i++)
+//		{
+//			pCargo.dequeue(C);
+//			C->Print(str);
+//			tempQueue.enqueue(C);
+//			if (pCargo.getLength() == 0)
+//				break;
+//			str += ", ";
+//		}
+//		for (int i = 0; i < numOfCargos; i++)
+//		{
+//			tempQueue.dequeue(C);
+//			pCargo.enqueue(C, C->getPriority());
+//		}
+//		str += "]";
+//		break;
+//	}
+//	}
+//}
 
 Truck::~Truck()
 {

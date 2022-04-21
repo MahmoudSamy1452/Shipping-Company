@@ -1,18 +1,64 @@
 #include "../Header Files/UI.h"
+#include "../Header Files/Company.h"
 using namespace std;
+
+void UI::PrintTruck(Truck* t)
+{
+	if (t->getNoOfCargos() > 0)
+	{
+		cout << t->getID();
+		switch (t->getType())
+		{
+		case Normal:
+			cout << "[";
+			t->PrintMovingCargo();
+			cout << "]";
+			break;
+		case Special:
+			cout << "(";
+			t->PrintMovingCargo();
+			cout << ")";
+			break;
+		case VIP:
+			cout << "{";
+			t->PrintMovingCargo();
+			cout << "}";
+			break;
+		}
+	}
+	else
+	{
+		switch (t->getType())
+		{
+		case Normal:
+			cout << "[" << t->getID() << "]";
+			break;
+		case Special:
+			cout << "(" << t->getID() << ")";
+			break;
+		case VIP:
+			cout << "{" << t->getID() << "}";
+			break;
+		}
+	}
+}
 
 ostream& operator<<(ostream& output, Truck*& t)
 {
-	output << t->truckID << ", ";
+	UI::PrintTruck(t);
 	return output;
 }
 
 ostream& operator << (ostream& output, Cargo*& c)
 {
-	output << c->ID << ", ";
+	output << c->ID;
 	return output;
 }
 
+UI::UI(Company* company)
+{
+	this->company = company;
+}
 
 void UI::readInterfaceMode()
 {
@@ -25,10 +71,13 @@ void UI::readInterfaceMode()
 		{
 		case 0:
 			 UImode =Interactive;
+			 break;
 		case 1:
 			 UImode =Step_By_Step;
+			 break;
 		case 2:
 			 UImode = Silent;
+			 break;
 		default:
 			cout << "Invalid Mode. Re-enter a valid mode: ";
 		}
@@ -53,11 +102,6 @@ void UI::printTime(Time t)
 	cout << t.getDay() << ":" << t.getHour();
 }
 
-void UI::PrintString(const string& str)
-{
-	cout << str;
-}
-
 void UI::PrintBreakLine()
 {
 	cout << "\n--------------------------------------------------------\n";
@@ -68,3 +112,49 @@ void UI::wait()
 	cin.get();
 }
 
+void UI::PrintHour()
+{
+	int LT, ET, MC, ICT, DC, WC;
+	cout << endl;
+	cout << "Current time (Day:Hour):";
+	printTime(company->GetClock());
+	cout << endl;
+	WC = company->getLengthOfLists(LT, ET, MC, ICT, DC);
+	cout << WC << " Waiting Cargos: [";
+	company->PrintWaitingNC();
+	cout << "] (";
+	company->PrintWaitingSC();
+	cout << ") {";
+	company->PrintWaitingVC();
+	cout << "}";
+	PrintBreakLine();
+	//////////////////////////////////////////////////////////
+	cout << LT << " Loading Trucks: ";
+	company->PrintLoadingT();
+	PrintBreakLine();
+	///////////////////////////////////////////////////////////
+	cout << ET << " Empty Trucks: ";
+	company->PrintWaitingNT();
+	cout << ", ";
+	company->PrintWaitingST();
+	cout << ", ";
+	company->PrintWaitingVT();
+	PrintBreakLine();
+	///////////////////////////////////////////////////////////
+	cout << MC << " Moving Cargos: ";
+	company->PrintMovingT();
+	PrintBreakLine();
+	/////////////////////////////////////////////////////////////
+	cout << ICT << " In-Checkup Trucks: ";
+	company->PrintTrucksInMaintenance();
+	PrintBreakLine();
+	/////////////////////////////////////////////////////////////
+	cout << DC << " Delivered Cargos: [";
+	company->PrintDeliveredNC();
+	cout << "] (";
+	company->PrintDeliveredSC();
+	cout << ") {";
+	company->PrintDeliveredVC();
+	cout << "}";
+	PrintBreakLine();
+}

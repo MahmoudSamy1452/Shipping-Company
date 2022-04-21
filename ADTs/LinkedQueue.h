@@ -1,4 +1,4 @@
-
+#include <iostream>
 /*
 This is a program that implements the queue abstract data type using a linked list.
 The queue is implemented as a chain of linked nodes that has two pointers,
@@ -61,6 +61,7 @@ public:
 	bool dequeue(T& frntEntry);
 	bool peek(T& frntEntry)  const;
 	int getLength() const;
+	void Print() const;
 	~LinkedQueue();
 
 	//copy constructor
@@ -226,5 +227,23 @@ LinkedQueue<T>::LinkedQueue(const LinkedQueue<T>& LQ)
 		NodePtr = NodePtr->getNext();
 	}
 }
+
+template<typename T>
+void LinkedQueue<T>::Print() const
+{
+	T Item;
+	Node<T>* ptr = frontPtr;
+	while (ptr)
+	{
+		Item = ptr->getItem();
+		cout << Item;
+		if (ptr->getNext())
+		{
+			cout << ", ";
+		}
+		ptr = ptr->getNext();
+	}
+}
+
 
 #endif

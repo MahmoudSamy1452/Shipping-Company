@@ -12,8 +12,6 @@ Cargo::Cargo(Type cargoType,int ID, int deliveryDistance, Time readyTime, int lo
 	this->deliveryDistance = deliveryDistance;
 	this->cost = cost;
 	this->ready_time = readyTime;
-	delivered = false;
-	assigned = false;
 	this->loading_time = loadingTime;
 }
 
@@ -67,14 +65,14 @@ int Cargo::getLoadingTime()
 	return loading_time;
 }
 
+
 int Cargo::getPriority()
 {
-	if (cargoType != VIP)
+	if (cargoType == VIP)
 	{
-		return 0;
+		return (cost * 4 + deliveryDistance * 3 + ready_time.toInt() * 2 + loading_time) * -1;
 	}
-	int priority = ready_time.toInt() + deliveryDistance * 2 + cost * 3 + loading_time * 2;
-	return priority;
+	return  1;
 }
 
 int Cargo::getID() const

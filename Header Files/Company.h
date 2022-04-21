@@ -1,16 +1,19 @@
 #pragma once
 #include "UI.h"
-#include "../ADTs/LinkedList.h"
+#include "../ADTs/LinkedNormal.h"
 #include "../ADTs/LinkedQueue.h"
-#include "../ADTs/PriorityQueue.h"
 #include "Event.h"
-#include "Cargo.h"
 #include "Truck.h"
+#include "Cargo.h"
 
 class Event;
+class UI;
+class Truck;
+class Cargo;
 
 class Company
 {
+	int numOfMovingCargos;
 	int NTcount;
 	int STcount;
 	int VTcount;
@@ -20,7 +23,7 @@ class Company
 	Time Clock;
 	LinkedQueue<Event*> EventList;
 
-	LinkedList<Cargo*> WaitingNC;
+	LinkedNormal WaitingNC;
 	LinkedQueue<Cargo*> WaitingSC;
 	PriorityQueue<Cargo*> WaitingVC;
 
@@ -45,7 +48,23 @@ class Company
 	Company();
 
 	void AppendWaiting(Cargo*);
-	bool RemoveWaitingNormal(int, Cargo*&);
+	void RemoveWaitingNormal(int, Cargo*&);
+
+	void PrintWaitingNC();
+	void PrintWaitingSC();
+	void PrintWaitingVC();
+	void PrintDeliveredNC();
+	void PrintDeliveredSC();
+	void PrintDeliveredVC();
+	void PrintWaitingNT();
+	void PrintWaitingST();
+	void PrintWaitingVT();
+	void PrintMovingT();
+	void PrintLoadingT();
+	void PrintTrucksInMaintenance();
+
+	int getLengthOfLists(int &LT, int &ET, int &MC, int &ICT, int &DC);
+	Time GetClock() const;
 	void FileLoading(const string filename);
 	void Simulate();
 	void Print();

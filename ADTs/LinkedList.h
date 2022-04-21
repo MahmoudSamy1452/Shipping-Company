@@ -5,13 +5,13 @@
 
 #include "ListInterface.h"
 #include "Node.h"
-#include "iostream" //for Print function
+#include <iostream> //for Print function
 
 using namespace std;
 template < class ItemType>
 class LinkedList : public ListInterface<ItemType>
 {
-private:
+protected:
 	Node<ItemType>* headPtr; // Pointer to first node in the chain
 	// (contains the first entry in the list)
 	int itemCount; // Current count of list items
@@ -38,22 +38,6 @@ public:
 	void Print() const;
 }; // end LinkedList
 #endif
-
-template < class ItemType>
-bool LinkedList<ItemType>::search(int key, ItemType& item)
-{
-	Node<ItemType>* p = headPtr;
-	while (p)
-	{
-		if (p->getItem() == key)
-		{
-			item = p->getItem();
-			return true;
-		}
-		p = p->getNext();
-	}
-	return false;
-}
 
 template < class ItemType>
 LinkedList<ItemType>::LinkedList() : headPtr(nullptr), itemCount(0)
@@ -224,10 +208,16 @@ int LinkedList<ItemType>::getLength() const
 template<class ItemType>
 void LinkedList<ItemType>::Print() const
 {
-	ItemType temp;
-	for (int i = 1; i <= itemCount; i++)
+	ItemType Item;
+	Node<ItemType>* ptr = headPtr;
+	while (ptr)
 	{
-		getEntry(i, temp);
-		cout << temp << " ";
+		Item = ptr->getItem();
+		cout << Item;
+		if (ptr->getNext())
+		{
+			cout << ", ";
+		}
+		ptr = ptr->getNext();
 	}
 }

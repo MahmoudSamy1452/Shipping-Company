@@ -1,3 +1,4 @@
+#include <iostream>
 /*
 This is a program that implements the queue abstract data type using a linked list.
 The queue is implemented as a chain of linked nodes that has two pointers,
@@ -61,6 +62,7 @@ public:
 	bool dequeue(T& frntEntry);
 	bool peek(T& frntEntry)  const;
 	int getLength() const;
+	void Print() const;
 	virtual ~PriorityQueue();
 
 	//copy constructor
@@ -250,6 +252,22 @@ PriorityQueue<T>::PriorityQueue(const PriorityQueue<T>& LQ)
 		backPtr->setNext(ptr);
 		backPtr = ptr;
 		NodePtr = NodePtr->getNext();
+	}
+}
+
+template <typename T>
+void PriorityQueue<T>::Print() const {
+	T Item;
+	PNode<T>* ptr = frontPtr;
+	while (ptr)
+	{
+		Item = ptr->getItem();
+		cout << Item;
+		if (ptr->getNext())
+		{
+			cout << ", ";
+		}
+		ptr = ptr->getNext();
 	}
 }
 

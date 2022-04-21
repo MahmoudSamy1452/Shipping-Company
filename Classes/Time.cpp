@@ -54,10 +54,3 @@ bool Time::operator == (const Time& time) const
 		return true;
 	return false;
 }
-
-Time Time::operator - (const Time& time) const
-{
-	int time1 = this->toInt();
-	int time2 = time.toInt();
-	return Time(time1 - time2);
-}

@@ -26,9 +26,11 @@ public:
 	friend ostream& operator <<(ostream& output, Truck*& c);
 	Truck(Type truckType, int capacity, int maintenanceTime, int speed);
 	int getID() const;
+	Type getType() const;
 	int getNoOfCargos() const;
-	void PrintEmpty(string& str);
-	void PrintLoading(string& str);
+	//void PrintEmpty(string& str);
+	//void PrintLoading(string& str);
+	void PrintMovingCargo() const;
 	void setMoveTime(const Time& time);
 	void setdeliveryInterval();
 	Time getComebackTime();

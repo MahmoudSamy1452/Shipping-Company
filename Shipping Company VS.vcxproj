@@ -140,6 +140,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="ADTs\LinkedList.h" />
+    <ClInclude Include="ADTs\LinkedNormal.h" />
     <ClInclude Include="ADTs\LinkedQueue.h" />
     <ClInclude Include="ADTs\ListInterface.h" />
     <ClInclude Include="ADTs\Node.h" />

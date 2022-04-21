@@ -25,6 +25,4 @@ public:
 	int toTime(int n); 
 
 	bool operator == (const Time& time) const;
-
-	Time operator - (const Time& time) const;
 };

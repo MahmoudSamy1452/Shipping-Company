@@ -152,7 +152,7 @@ void Company::FileLoading(const string filename)
 void Company::Simulate()
 {
 	string filename =  interface->readFilename();
-	FileLoading("Test1.txt");
+	FileLoading(filename);
 	interface->wait();
 	Event* eve;
 	Cargo* removed;

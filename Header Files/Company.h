@@ -66,6 +66,5 @@ class Company
 	Time GetClock() const;
 	void FileLoading(const string filename);
 	void Simulate();
-	void Print();
 	~Company();
 };

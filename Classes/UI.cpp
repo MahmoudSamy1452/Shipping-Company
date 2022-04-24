@@ -31,13 +31,13 @@ void UI::PrintTruck(Truck* t)
 		switch (t->getType())
 		{
 		case Normal:
-			cout << "[" << t->getID() << "]";
+			cout << t->getID();
 			break;
 		case Special:
-			cout << "(" << t->getID() << ")";
+			cout << t->getID();
 			break;
 		case VIP:
-			cout << "{" << t->getID() << "}";
+			cout << t->getID();
 			break;
 		}
 	}
@@ -134,11 +134,13 @@ void UI::PrintHour()
 	PrintBreakLine();
 	///////////////////////////////////////////////////////////
 	cout << ET << " Empty Trucks: ";
+	cout << "[";
 	company->PrintWaitingNT();
-	cout << ", ";
+	cout << "], (";
 	company->PrintWaitingST();
-	cout << ", ";
+	cout << "), {";
 	company->PrintWaitingVT();
+	cout << "}";
 	PrintBreakLine();
 	///////////////////////////////////////////////////////////
 	cout << MC << " Moving Cargos: ";

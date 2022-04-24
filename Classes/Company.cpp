@@ -174,9 +174,9 @@ void Company::Simulate()
 			WaitingNC.getEntry(i, C);
 			if (C->getWaitingTime(Clock) == autoP*24)
 			{
-				WaitingNC.remove(i);
-				C->setType(VIP);
-				WaitingVC.enqueue(C, C->getPriority());
+				Event* autoPAction = new PromoteEvent(Clock, C->getID(), 0, this);
+				autoPAction->Execute();
+				delete autoPAction;
 			}
 		}
 		if(count % 5 == 0 && count != 0)

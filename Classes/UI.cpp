@@ -1,3 +1,4 @@
+#include "Windows.h"
 #include "../Header Files/UI.h"
 #include "../Header Files/Company.h"
 using namespace std;
@@ -63,25 +64,25 @@ UI::UI(Company* company)
 void UI::readInterfaceMode()
 {
 	int mode;
-	cout << "Choose Interface: (0)Interactive Mode (1)Step-By-Step Mode  (2)Silent Mode";
-	while (true)
+	cout << "Choose Interface: (0) Interactive Mode (1) Step-By-Step Mode  (2) Silent Mode ";
+	do
 	{
 		cin >> mode;
 		switch (mode)
 		{
 		case 0:
-			 UImode =Interactive;
-			 break;
+			UImode = Interactive;
+			break;
 		case 1:
-			 UImode =Step_By_Step;
-			 break;
+			UImode = Step_By_Step;
+			break;
 		case 2:
-			 UImode = Silent;
-			 break;
+			UImode = Silent;
+			break;
 		default:
 			cout << "Invalid Mode. Re-enter a valid mode: ";
 		}
-	}
+	} while (mode < 0 && mode > 2);
 }
 
 InterfaceMode UI::getUImode()
@@ -159,4 +160,14 @@ void UI::PrintHour()
 	company->PrintDeliveredVC();
 	cout << "}";
 	PrintBreakLine();
+	if (UImode == Interactive)
+		wait();
+	else
+		Sleep(1000);
+}
+
+void UI::StartSilent()
+{
+	cout << "Silent Mode\n";
+	cout << "Simulation Starts...\n";
 }

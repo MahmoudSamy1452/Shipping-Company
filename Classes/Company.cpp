@@ -11,7 +11,7 @@
 Company::Company()
 {
 	numOfMovingCargos = 0;
-	interface = new UI(this);
+	interface_ = new UI(this);
 }
 
 
@@ -151,12 +151,17 @@ void Company::FileLoading(const string filename)
 
 void Company::Simulate()
 {
-	string filename =  interface->readFilename();
+	string filename =  interface_->readFilename();
+	interface_->readInterfaceMode();
 	FileLoading(filename);
-	interface->wait();
+	interface_->wait();
 	Event* eve;
 	Cargo* removed;
 	int count = 0;
+	if (interface_->getUImode() == Silent)
+	{
+		interface_->StartSilent();
+	}
 	while(!EventList.isEmpty() || !WaitingNC.isEmpty() || !WaitingSC.isEmpty() || !WaitingVC.isEmpty())
 	{
 		EventList.peek(eve);
@@ -191,11 +196,14 @@ void Company::Simulate()
 			if(WaitingVC.dequeue(removed))
 				DeliveredVC.enqueue(removed);
 		}
-		interface->PrintHour();
-		interface->wait();
+		if (interface_->getUImode() != Silent)
+		{
+			interface_->PrintHour();
+		}
 		Clock.incrementTime();
 		count++;
 	}
+	cout << "Simulation ends, Output file created\n";
 }
 
 void Company::PrintWaitingNC()
@@ -260,5 +268,5 @@ void Company::PrintTrucksInMaintenance()
 
 Company::~Company()
 {
-	delete interface;
+	delete interface_;
 }

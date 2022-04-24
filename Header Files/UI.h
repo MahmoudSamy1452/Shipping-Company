@@ -22,4 +22,5 @@ public:
 	void PrintHour();
 	void wait();
 	static void PrintTruck(Truck* t);
+	void StartSilent();
 };

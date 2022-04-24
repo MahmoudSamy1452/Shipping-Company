@@ -40,7 +40,7 @@ class Company
 
 	PriorityQueue<Truck*> TrucksInMaintenance;
 
-	UI* interface;
+	UI* interface_;
 
 	public:
 

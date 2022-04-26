@@ -70,9 +70,9 @@ int Cargo::getPriority()
 {
 	if (cargoType == VIP)
 	{
-		return (cost * 4 + deliveryDistance * 3 + ready_time.toInt() * 2 + loading_time) * -1;
+		return (cost * 4 + deliveryDistance * 3 - ready_time.toInt() * 2 + loading_time) * -1;
 	}
-	return  1;
+	return  0;
 }
 
 int Cargo::getID() const

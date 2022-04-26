@@ -55,7 +55,7 @@ Time Company::GetClock() const
 	return Clock;
 }
 
-void Company::FileLoading(const string filename)
+void Company::FileLoading(string filename)
 {
 	//temporary
 	int NTspeed, STspeed, VTspeed;
@@ -67,6 +67,12 @@ void Company::FileLoading(const string filename)
 	ifstream inFile;
 	// input name
 	inFile.open(filename);
+	while(!inFile.is_open())
+	{
+		interface_->PrintErrorMessage();
+		filename = interface_->readFilename();
+		inFile.open(filename);
+	}
 	if (inFile.is_open())
 	{
 		inFile >> NTcount >> STcount >> VTcount;
@@ -147,14 +153,16 @@ void Company::FileLoading(const string filename)
 			}
 		}
 	}
+		
 }
 
 void Company::Simulate()
 {
 	string filename =  interface_->readFilename();
-	interface_->readInterfaceMode();
 	FileLoading(filename);
+	interface_->readInterfaceMode();
 	interface_->wait();
+	
 	Event* eve;
 	Cargo* removed;
 	int count = 0;
@@ -169,6 +177,7 @@ void Company::Simulate()
 		{
 			eve->Execute();
 			EventList.dequeue(eve);
+			delete eve;
 			EventList.peek(eve);
 		}
 
@@ -184,6 +193,7 @@ void Company::Simulate()
 				delete autoPAction;
 			}
 		}
+
 		if(count % 5 == 0 && count != 0)
 		{
 			if (WaitingNC.getEntry(1, removed))

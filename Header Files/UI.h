@@ -17,6 +17,7 @@ public:
 	void readInterfaceMode();
 	InterfaceMode getUImode();
 	string readFilename();
+	void PrintErrorMessage();
 	void printTime(Time t);
 	void PrintBreakLine();
 	void PrintHour();

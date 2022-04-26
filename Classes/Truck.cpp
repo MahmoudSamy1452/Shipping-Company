@@ -14,6 +14,7 @@ Truck::Truck(Type truckType, int capacity, int maintenanceTime, int speed)
 	totalActiveTime = 0;
 	truckID = currtruckID;
 	currtruckID++;
+	isinMaintenance = false;
 }
 
 int Truck::getID() const
@@ -31,21 +32,24 @@ int Truck::getNoOfCargos() const
 	return numOfCargos;
 }
 
+bool Truck::getisinMaintenance() const
+{
+	return isinMaintenance;
+}
+
 void Truck::setdeliveryInterval()
 {
 	deliveryInterval = 2 * float((distanceOfFurthest / speed)) + sumOfUnloadTimes;
 }
 
+void Truck::setisinMaintenence(bool maintenance)
+{
+	isinMaintenance = maintenance;
+}
+
 void Truck::setMoveTime(const Time& time)
 {
 	MoveTime = time;
-}
-
-Time Truck::getComebackTime()
-{
-	return Time(MoveTime.toInt() + deliveryInterval); //COME BACK LATER
-	//float comebackTime = (MoveTime.toInt() + deliveryInterval);
-	//return comebackTime.t
 }
 
 float Truck::getTotalActiveTime()
@@ -62,15 +66,15 @@ float Truck::getTruckUtilizationTime(int simulationTime)
 
 void Truck::insertInPriorityQueue(Cargo* &item)
 {
-	pCargo.enqueue(item,item->getDeliveryDistance());
+	MovingC.enqueue(item,item->getDeliveryDistance());
 	numOfCargos++;
 }
 
 void Truck::removeFromPriorityQueue(Cargo* &item)
 {
-	pCargo.dequeue(item);
+	MovingC.dequeue(item);
 	numOfCargos--;
-	if (pCargo.isEmpty())
+	if (MovingC.isEmpty())
 	{
 		distanceOfFurthest = item->getDeliveryDistance();
 		setdeliveryInterval();
@@ -78,9 +82,21 @@ void Truck::removeFromPriorityQueue(Cargo* &item)
 	sumOfUnloadTimes += item->getLoadingTime();
 }
 
+//float Truck::calculatefinaltime(Time Clock)
+//{
+//	switch (status) {
+//	case Moving:
+//		return (Clock.toInt() + delieveryinterval) 
+//	case Loading:
+//		return (Clock.toInt() + sumofUnloadTimes)
+//	case Maintenece:
+//		return (Clock.toInt() + maintenanceTime)
+// }
+//}
+
 void Truck::PrintMovingCargo() const
 {
-	pCargo.Print();
+	MovingC.Print();
 }
 
 Truck::~Truck()

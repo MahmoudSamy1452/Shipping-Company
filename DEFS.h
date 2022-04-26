@@ -13,4 +13,10 @@ enum InterfaceMode
 	Step_By_Step,
 	Silent
 };
+
+enum TruckStatus {
+	Moving,
+	Loading,
+	Maintenance
+};
 #endif

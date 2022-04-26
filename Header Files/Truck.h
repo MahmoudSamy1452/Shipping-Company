@@ -7,7 +7,7 @@ class Cargo;
 class Truck
 {
 private:
-	PriorityQueue<Cargo*> pCargo;
+	PriorityQueue<Cargo*> MovingC;
 	int numOfCargos;
 	Type truckType;
 	int capacity;
@@ -21,6 +21,8 @@ private:
 	Time MoveTime;
 	int distanceOfFurthest; //To be used in functions total active time and delivery interval  
 	int sumOfUnloadTimes;
+	bool isinMaintenance;
+	TruckStatus status;
 public:
 
 	friend ostream& operator <<(ostream& output, Truck*& c);
@@ -28,13 +30,15 @@ public:
 	int getID() const;
 	Type getType() const;
 	int getNoOfCargos() const;
+	bool getisinMaintenance() const;
 	void PrintMovingCargo() const;
 	void setMoveTime(const Time& time);
 	void setdeliveryInterval();
-	Time getComebackTime();
+	void setisinMaintenence(bool maintenance);
 	float getTotalActiveTime();
 	float getTruckUtilizationTime(int simulationTime);
 	void insertInPriorityQueue(Cargo* &item);
 	void removeFromPriorityQueue(Cargo* &item);
+	float calculatefinaltime(Time Clock);
 	~Truck();
 };

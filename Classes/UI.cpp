@@ -27,6 +27,26 @@ void UI::PrintTruck(Truck* t)
 			break;
 		}
 	}
+	else if (t->getisinMaintenance()) {
+		switch (t->getType())
+		{
+		case Normal:
+			cout << "[";
+			cout << t->getID();
+			cout << "]";
+			break;
+		case Special:
+			cout << "(";
+			cout << t->getID();
+			cout << ")";
+			break;
+		case VIP:
+			cout << "{";
+			cout << t->getID();
+			cout << "}";
+			break;
+		}
+	}
 	else
 	{
 		switch (t->getType())
@@ -170,4 +190,9 @@ void UI::StartSilent()
 {
 	cout << "Silent Mode\n";
 	cout << "Simulation Starts...\n";
+}
+
+void UI::PrintErrorMessage()
+{
+	cout << "Invalid file name!!" << endl << "Please input a valid file name: " << endl;
 }

@@ -29,7 +29,6 @@ public:
 	void setDeliveryTime(int t);
 
 	int getDeliveryTime();
-	
 
 	Type getType();
 
@@ -38,7 +37,6 @@ public:
 	void addExtraMoney(int money);
 
 	float getDeliveryDistance();
-
 
 	float getCost();
 

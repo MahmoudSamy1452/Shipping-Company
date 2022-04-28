@@ -4,12 +4,14 @@ int Truck::currtruckID = 1;
 
 Truck::Truck(Type truckType, int capacity, int maintenanceTime, int speed)
 {
+	status = Waiting;
 	this->numOfCargos = 0; 
 	this->truckType = truckType;
 	this->capacity = capacity;
 	this->maintenanceTime = maintenanceTime;
 	this->deliveryJourneys = 0;
 	this->speed = speed;
+	sumOfUnloadTimes = 0;
 	deliveryInterval = 0;
 	totalActiveTime = 0;
 	truckID = currtruckID;
@@ -50,6 +52,7 @@ void Truck::setisinMaintenence(bool maintenance)
 void Truck::setMoveTime(const Time& time)
 {
 	MoveTime = time;
+	status = Moving;
 }
 
 float Truck::getTotalActiveTime()
@@ -68,18 +71,21 @@ void Truck::insertInPriorityQueue(Cargo* &item)
 {
 	MovingC.enqueue(item,item->getDeliveryDistance());
 	numOfCargos++;
+	if(distanceOfFurthest < item->getDeliveryDistance())
+		distanceOfFurthest = item->getDeliveryDistance();
+	if (numOfCargos == capacity)
+	{
+		setdeliveryInterval();
+	}
+	sumOfUnloadTimes += item->getLoadingTime();
 }
 
 void Truck::removeFromPriorityQueue(Cargo* &item)
 {
 	MovingC.dequeue(item);
 	numOfCargos--;
-	if (MovingC.isEmpty())
-	{
-		distanceOfFurthest = item->getDeliveryDistance();
-		setdeliveryInterval();
-	}
-	sumOfUnloadTimes += item->getLoadingTime();
+	int CargoDeliveryTime = MoveTime.toInt() + (item->getDeliveryDistance())/speed + item->getLoadingTime();
+	item->setDeliveryTime(CargoDeliveryTime);
 }
 
 //float Truck::calculatefinaltime(Time Clock)

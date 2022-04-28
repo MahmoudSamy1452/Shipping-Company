@@ -15,6 +15,7 @@ enum InterfaceMode
 };
 
 enum TruckStatus {
+	Waiting,
 	Moving,
 	Loading,
 	Maintenance

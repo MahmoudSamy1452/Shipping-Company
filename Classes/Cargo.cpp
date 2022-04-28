@@ -15,7 +15,7 @@ Cargo::Cargo(Type cargoType,int ID, int deliveryDistance, Time readyTime, int lo
 	this->loading_time = loadingTime;
 }
 
-void Cargo::Cargo::setType(Type cargoType)
+void Cargo::setType(Type cargoType)
 {
 	this->cargoType = cargoType;
 }
@@ -72,6 +72,7 @@ int Cargo::getPriority()
 	{
 		return (cost * 4 + deliveryDistance * 3 - ready_time.toInt() * 2 + loading_time) * -1;
 	}
+
 	return  0;
 }
 

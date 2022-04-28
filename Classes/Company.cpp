@@ -41,7 +41,6 @@ int Company::getLengthOfLists(int &LT, int &ET, int &MC, int &ICT, int &DC)
 {
 	LT = LoadingT.getLength();
 	ET = WaitingNT.getLength() + WaitingST.getLength() + WaitingVT.getLength();
-	MC = 0;
 	Truck* t;
 	LinkedQueue<Truck*> temp;
 	MC = numOfMovingCargos;
@@ -153,7 +152,6 @@ void Company::FileLoading(string filename)
 			}
 		}
 	}
-		
 }
 
 void Company::Simulate()
@@ -193,6 +191,7 @@ void Company::Simulate()
 				delete autoPAction;
 			}
 		}
+
 
 		if(count % 5 == 0 && count != 0)
 		{

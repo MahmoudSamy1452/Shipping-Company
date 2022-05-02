@@ -5,8 +5,8 @@ Time::Time(int day, int hour): Day(day), Hour(hour)
 }
 
 Time::Time(){
-	Day = 1;
-	Hour = 0;
+	Day = -1;
+	Hour = -1;
 }
 
 int Time::getDay()
@@ -53,4 +53,11 @@ bool Time::operator == (const Time& time) const
 	if (Day == time.Day && Hour == time.Hour)
 		return true;
 	return false;
+}
+
+bool Time::isValid()
+{
+	if (Day < 0 && Hour < 0)
+		return false;
+	return true;
 }

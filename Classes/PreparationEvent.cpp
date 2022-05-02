@@ -13,7 +13,7 @@ void PreparationEvent::Execute()
 {
 	Cargo* newCargo = new Cargo(cargotype, ID, dist, evtTime, loadTime, cost);
 	pCompany->AppendWaiting(newCargo);
-	
+	pCompany->IncrementCargos();
 }
 
 PreparationEvent::~PreparationEvent()

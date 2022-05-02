@@ -12,6 +12,7 @@ private:
 
 	Time ready_time;
 	int loading_time;
+	Time loaded_time;
 	Type cargoType;
 	int ID;
 	int deliveryDistance;
@@ -25,6 +26,12 @@ public:
 	Cargo(Type cargoType, int ID, int deliveryDistance, Time readyTime, int loadingTime, int cost);
 
 	void setType(Type cargoType);
+
+	void setLoadedTime(Time t);
+
+
+	Time getLoadedTime();
+
 
 	void setDeliveryTime(int t);
 

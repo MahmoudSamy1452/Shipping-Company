@@ -20,6 +20,16 @@ void Cargo::setType(Type cargoType)
 	this->cargoType = cargoType;
 }
 
+	void Cargo::setLoadedTime(Time t)
+	{
+		loaded_time = t;
+	}
+
+	Time Cargo::getLoadedTime()
+	{
+		return loaded_time;
+	}
+
 void Cargo::setDeliveryTime(int t)
 {
 	deliveryTime = t;

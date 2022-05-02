@@ -10,4 +10,5 @@ void CancelEvent::Execute()
 	Cargo* cancelledCargo = nullptr;
 	pCompany->RemoveWaitingNormal(ID, cancelledCargo);
 	delete cancelledCargo;
+	pCompany->DecrementCargos();
 }

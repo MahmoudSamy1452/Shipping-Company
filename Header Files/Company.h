@@ -12,6 +12,7 @@ class Cargo;
 
 class Company
 {
+	int numOfCargos;
 	int numOfMovingCargos;
 	int NTcount;
 	int STcount;
@@ -30,13 +31,13 @@ class Company
 	LinkedQueue<Cargo*> DeliveredSC;
 	LinkedQueue<Cargo*> DeliveredVC;
 
-	LinkedQueue<Truck*> WaitingNT;
-	LinkedQueue<Truck*> WaitingST;
-	LinkedQueue<Truck*> WaitingVT;
+	PriorityQueue<Truck*> WaitingNT;
+	PriorityQueue<Truck*> WaitingST;
+	PriorityQueue<Truck*> WaitingVT;
 
 	PriorityQueue<Truck*> MovingT;
 
-	PriorityQueue<Truck*> LoadingT;
+	LinkedQueue<Truck*> LoadingT;
 
 	PriorityQueue<Truck*> TrucksInMaintenance;
 
@@ -48,7 +49,6 @@ class Company
 
 	void AppendWaiting(Cargo*);
 	bool RemoveWaitingNormal(int, Cargo*&);
-
 	void PrintWaitingNC();
 	void PrintWaitingSC();
 	void PrintWaitingVC();
@@ -61,10 +61,16 @@ class Company
 	void PrintMovingT();
 	void PrintLoadingT();
 	void PrintTrucksInMaintenance();
-
+	void IncrementCargos();
+	void DecrementCargos();
 	int getLengthOfLists(int &LT, int &ET, int &MC, int &ICT, int &DC);
 	Time GetClock() const;
 	void FileLoading(const string filename);
 	void Simulate();
+	void Assign(Truck* &currN, Truck* &currS, Truck* &currV);
+	void AssignMaxW(Truck* &currN, Truck* &currS, Truck* &currV);
+	bool AssignNormal(Cargo* cargo, Truck* &currNT, Truck* &currVT, bool isMaxW);
+	bool AssignSpecial(Cargo* cargo, Truck* &currST, bool isMaxW);
+	bool AssignVIP(Cargo* cargo, Truck* &currVT,Truck* &curNT,Truck* &currST,bool isMaxW);
 	~Company();
 };

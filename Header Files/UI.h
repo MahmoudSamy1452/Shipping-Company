@@ -24,4 +24,5 @@ public:
 	void wait();
 	static void PrintTruck(Truck* t);
 	void StartSilent();
+	void End();
 };

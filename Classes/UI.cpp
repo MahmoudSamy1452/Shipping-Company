@@ -196,3 +196,8 @@ void UI::PrintErrorMessage()
 {
 	cout << "Invalid file name!!" << endl << "Please input a valid file name: " << endl;
 }
+
+void UI::End()
+{
+	cout << "Simulation ends, Output file created\n";
+}

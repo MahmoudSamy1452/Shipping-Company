@@ -306,11 +306,8 @@ void Company::AssignMaxW(Truck*& LoadingN, Truck*& LoadingS, Truck*& LoadingV)
 	//Normal cargos that may reach maxW are in the front
 	while (WaitingNC.getEntry(1, ctemp)) {
 		waitingtime = ctemp->getWaitingTime(Clock);
-		if (waitingtime == maxW) 
-		{
-			AssignNormal(ctemp, LoadingN, LoadingV, true);
-			WaitingNC.remove(1);
-		}
+		if (waitingtime == maxW && AssignNormal(ctemp, LoadingN, LoadingV, true))
+				WaitingNC.remove(1);
 		else
 			break;
 	}
@@ -318,11 +315,8 @@ void Company::AssignMaxW(Truck*& LoadingN, Truck*& LoadingS, Truck*& LoadingV)
 	//Special cargos that may reach maxW are in the front
 	while (WaitingSC.peek(ctemp)) {
 		waitingtime = ctemp->getWaitingTime(Clock);
-		if (waitingtime == maxW) 
-		{
-			AssignSpecial(ctemp, LoadingS, true);
-			WaitingSC.dequeue(ctemp);
-		}
+		if (waitingtime == maxW && AssignSpecial(ctemp, LoadingS, true))
+				WaitingSC.dequeue(ctemp);
 		else 
 			break;
 	}

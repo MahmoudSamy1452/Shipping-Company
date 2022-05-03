@@ -50,8 +50,6 @@ int Company::getLengthOfLists(int &LT, int &ET, int &MC, int &ICT, int &DC)
 {
 	LT = LoadingT.getLength();
 	ET = WaitingNT.getLength() + WaitingST.getLength() + WaitingVT.getLength();
-	Truck* t;
-	LinkedQueue<Truck*> temp;
 	MC = numOfMovingCargos;
 	ICT = TrucksInMaintenance.getLength();
 	DC = DeliveredNC.getLength() + DeliveredSC.getLength() + DeliveredVC.getLength();
@@ -178,17 +176,8 @@ void Company::Simulate()
 		interface_->StartSilent();
 	}
 
-	Truck* currN = nullptr;
-	Truck* currS = nullptr;
-	Truck* currV = nullptr;
 	while(!EventList.isEmpty() || numOfCargos != DeliveredNC.getLength()+DeliveredSC.getLength()+DeliveredVC.getLength())
 	{
-		if (!currN)
-			WaitingNT.dequeue(currN);
-		if (!currS)
-			WaitingST.dequeue(currS);
-		if (!currV)
-			WaitingVT.dequeue(currV);
 		EventList.peek(eve);
 		while (eve->getTime() == Clock && !EventList.isEmpty())
 		{
@@ -211,7 +200,7 @@ void Company::Simulate()
 			}
 		}
 
-		Assign(currN, currS, currV);
+		Assign();
 
 		// MaxW in loaded trucks
 		Truck* tempT;
@@ -219,62 +208,16 @@ void Company::Simulate()
 		{
 			if (LoadingT.dequeue(tempT) && tempT->getMaxWaitingCargo(Clock) == maxW)
 			{
-				MovingT.enqueue(tempT, tempT->calculatefinaltime(Clock));
+				tempT->setMoveTime(Clock);
+				MovingT.enqueue(tempT, tempT->getPriority());
 				numOfMovingCargos += tempT->getNoOfCargos();
-				switch(tempT->getType())
-				{
-				case Normal:
-					currN = nullptr;
-					break;
-				case Special:
-					currS = nullptr;
-					break;
-				case VIP:
-					currV = nullptr;
-					break;
-				}
+				i--;
 				continue;
 			}
 			LoadingT.enqueue(tempT);
 		}
 
-		while(LoadingT.dequeue(tempT))
-		{
-			switch(tempT->getType())
-			{
-			case Normal:
-				currN = tempT;
-				break;
-			case Special:
-				currS = tempT;
-				break;
-			case VIP:
-				currV = tempT;
-				break;
-			}
-		}
-		if (currN && !currN->getNoOfCargos()) 
-		{
-			WaitingNT.enqueue(currN, currN->getPriority());
-			currN = nullptr;
-		}
-		else if(currN)
-			LoadingT.enqueue(currN);
-		if (currS && !currS->getNoOfCargos())
-		{
-			WaitingST.enqueue(currS, currS->getPriority());
-			currS = nullptr;
-		}
-		else if(currS)
-			LoadingT.enqueue(currS);
-		if (currV && !currV->getNoOfCargos())
-		{
-			WaitingVT.enqueue(currV, currV->getPriority());
-			currV = nullptr;
-		}
-		else if(currV)
-			LoadingT.enqueue(currV);
-
+		DeliverCargos();
 		if (interface_->getUImode() != Silent)
 		{
 			interface_->PrintHour();
@@ -289,23 +232,23 @@ bool Company::AssignNormal(Cargo* cargo,Truck*& currNT,Truck*& currVT, bool isMa
 {
 		if (currNT)
 		{
-			WaitingNC.remove(1);
 			currNT->load(cargo, Clock);
 			if (currNT->isFull() || isMaxW) {
 				currNT->setMoveTime(Clock);
 				MovingT.enqueue(currNT, currNT->calculatefinaltime(Clock));
-				WaitingNT.peek(currNT);
 				numOfMovingCargos += currNT->getNoOfCargos();
+				if (!WaitingNT.dequeue(currNT))
+					currNT = nullptr;
 			}
 		}
 		else if (currVT) {
-			WaitingNC.remove(1);
 			currVT->load(cargo, Clock);
 			if (currVT->isFull() || isMaxW) {
 				currVT->setMoveTime(Clock);
 				MovingT.enqueue(currVT, currVT->calculatefinaltime(Clock));
-				WaitingVT.peek(currVT);
 				numOfMovingCargos += currVT->getNoOfCargos();
+				if (!WaitingVT.dequeue(currVT))
+					currVT = nullptr;
 			}
 		}
 		else
@@ -322,7 +265,8 @@ bool Company::AssignSpecial(Cargo* cargo, Truck*& currST, bool isMaxW)
 			currST->setMoveTime(Clock);
 			MovingT.enqueue(currST, currST->calculatefinaltime(Clock));
 			numOfMovingCargos += currST->getNoOfCargos();
-			WaitingST.peek(currST);
+			if (!WaitingST.dequeue(currST))
+				currST = nullptr;
 		}
 	}
 	else return false;
@@ -334,38 +278,38 @@ bool Company::AssignVIP(Cargo* cargo, Truck*& currVT, Truck*& currNT, Truck*& cu
 {
 	if (currVT)
 	{
-		WaitingVC.dequeue(cargo);
 		currVT->load(cargo, Clock);
 		if (currVT->isFull() || isMaxW)
 		{
-			WaitingVT.dequeue(currVT);
 			currVT->setMoveTime(Clock);
 			MovingT.enqueue(currVT, currVT->calculatefinaltime(Clock));
 			numOfMovingCargos += currVT->getNoOfCargos();
+			if (!WaitingVT.dequeue(currVT))
+				currVT = nullptr;
 		}
 	}
 	else if (currNT)
 	{
-		WaitingVC.dequeue(cargo);
 		currNT->load(cargo, Clock);
 		if (currNT->isFull() || isMaxW)
 		{
-			WaitingNT.dequeue(currNT);
 			currNT->setMoveTime(Clock);
 			MovingT.enqueue(currNT, currNT->calculatefinaltime(Clock));
 			numOfMovingCargos += currNT->getNoOfCargos();
+			if (!WaitingNT.dequeue(currNT))
+				currNT = nullptr;
 		}
 	}
 	else if (currST)
 	{
-		WaitingVC.dequeue(cargo);
 		currST->load(cargo, Clock);
 		if (currST->isFull() || isMaxW)
 		{
-			WaitingST.dequeue(currST);
 			currST->setMoveTime(Clock);
 			MovingT.enqueue(currST, currST->calculatefinaltime(Clock));
 			numOfMovingCargos += currST->getNoOfCargos();
+			if (!WaitingST.dequeue(currST))
+				currST = nullptr;
 		}
 	}
 	else
@@ -373,12 +317,89 @@ bool Company::AssignVIP(Cargo* cargo, Truck*& currVT, Truck*& currNT, Truck*& cu
 	return true;
 }
 
-
-void Company::Assign(Truck*& currN, Truck*& currS, Truck*& currV)
+void Company::DeliverCargos()
 {
-	Cargo* ctemp;
+	Cargo* cargo;
 	Truck* tempT;
-	AssignMaxW(currN, currS, currV);
+	LinkedQueue<Truck*> tempQ;
+	while (!MovingT.isEmpty())
+	{
+		MovingT.dequeue(tempT);
+		while (tempT->getNoOfCargos() > 0)
+		{
+			if (tempT->getFirstCargo().toInt() <= Clock.toInt())
+			{
+				tempT->unload(cargo);
+				switch (cargo->getType())
+				{
+				case Normal:
+					DeliveredNC.enqueue(cargo);
+					break;
+				case Special:
+					DeliveredSC.enqueue(cargo);
+					break;
+				case VIP:
+					DeliveredVC.enqueue(cargo);
+					break;
+				}
+				numOfMovingCargos--;
+			}
+			else
+				break;
+		}
+		tempQ.enqueue(tempT);
+	}
+	while (tempQ.dequeue(tempT))
+	{
+		if (tempT->getNoOfCargos() > 0)
+			MovingT.enqueue(tempT, tempT->calculatefinaltime(Clock));
+		else
+			switch (tempT->getType())
+			{
+			case Normal:
+				WaitingNT.enqueue(tempT, tempT->getPriority());
+				break;
+			case Special:
+				WaitingST.enqueue(tempT, tempT->getPriority());
+				break;
+			case VIP:
+				WaitingVT.enqueue(tempT, tempT->getPriority());
+				break;
+			}
+	}
+}
+
+
+void Company::Assign()
+{
+	Truck* currN = nullptr;
+	Truck* currS = nullptr;
+	Truck* currV = nullptr;
+	Truck* tempT = nullptr;
+	while (!LoadingT.isEmpty())
+	{
+		LoadingT.dequeue(tempT);
+		switch (tempT->getType())
+		{
+		case Normal:
+			currN = tempT;
+			break;
+		case Special:
+			currS = tempT;
+			break;
+		case VIP:
+			currV = tempT;
+			break;
+		}
+	}
+	if (!currN)
+		WaitingNT.dequeue(currN);
+	if (!currS)
+		WaitingST.dequeue(currS);
+	if (!currV)
+		WaitingVT.dequeue(currV);
+	Cargo* ctemp;
+	//AssignMaxW(currN, currS, currV);
 	while(WaitingVC.peek(ctemp)){
 		if (AssignVIP(ctemp, currV, currN, currS, false))
 			WaitingVC.dequeue(ctemp);
@@ -399,6 +420,18 @@ void Company::Assign(Truck*& currN, Truck*& currS, Truck*& currV)
 		else
 			break;
 	}
+	if (currN && currN->getNoOfCargos() > 0)
+		LoadingT.enqueue(currN);
+	else if(currN)
+		WaitingNT.enqueue(currN, currN->getPriority());	
+	if (currS && currS->getNoOfCargos() > 0)
+		LoadingT.enqueue(currS);
+	else if(currS)
+		WaitingST.enqueue(currS, currS->getPriority());
+	if (currV && currV->getNoOfCargos() > 0)
+		LoadingT.enqueue(currV);
+	else if(currV)
+		WaitingVT.enqueue(currV, currV->getPriority());
 }
 
 void Company::PrintWaitingNC()

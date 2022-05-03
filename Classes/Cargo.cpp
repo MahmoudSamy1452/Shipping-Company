@@ -30,7 +30,7 @@ void Cargo::setType(Type cargoType)
 		return loaded_time;
 	}
 
-void Cargo::setDeliveryTime(int t)
+void Cargo::setDeliveryTime(Time t)
 {
 	deliveryTime = t;
 }
@@ -40,7 +40,7 @@ void Cargo::addExtraMoney(int money)
 	cost += money;
 }
 
-int Cargo::getDeliveryTime()
+Time Cargo::getDeliveryTime()
 {
 	return deliveryTime;
 }

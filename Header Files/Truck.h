@@ -40,9 +40,10 @@ public:
 	float getTotalActiveTime();
 	float getTruckUtilizationTime(int simulationTime);
 	void load(Cargo*& item, Time clock);
-	void unload(Cargo*& item, Time clock);
+	void unload(Cargo*& item);
 	float calculatefinaltime(Time Clock);
 	int getPriority() const;
 	int getMaxWaitingCargo(Time Clock) const;
+	Time getFirstCargo();
 	~Truck();
 };

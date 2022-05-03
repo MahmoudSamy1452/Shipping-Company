@@ -49,6 +49,13 @@ int Truck::getMaxWaitingCargo(Time Clock) const
 	return Clock.toInt() - MaxWaitingCargo.toInt();
 }
 
+Time Truck::getFirstCargo()
+{
+	Cargo* cargo;
+	MovingC.peek(cargo);
+	return cargo->getDeliveryTime();
+}
+
 bool Truck::getisinMaintenance() const
 {
 	return isinMaintenance;
@@ -68,6 +75,18 @@ void Truck::setMoveTime(const Time& time)
 {
 	MoveTime = time;
 	status = Moving;
+	int CargoDeliveryTime;
+	Cargo* item;
+	LinkedQueue<Cargo*> tempQ;
+	while (!MovingC.isEmpty())
+	{
+		MovingC.dequeue(item);
+		CargoDeliveryTime = MoveTime.toInt() + (item->getDeliveryDistance()) / speed + item->getLoadingTime();
+		item->setDeliveryTime(CargoDeliveryTime);
+		tempQ.enqueue(item);
+	}
+	while (tempQ.dequeue(item))
+		MovingC.enqueue(item, item->getDeliveryDistance());
 }
 
 float Truck::getTotalActiveTime()
@@ -96,12 +115,10 @@ void Truck::load(Cargo* &item, Time clock)
 		MaxWaitingCargo = clock;
 }
 
-void Truck::unload(Cargo* &item, Time clock)
+void Truck::unload(Cargo* &item)
 {
 	MovingC.dequeue(item);
 	numOfCargos--;
-	int CargoDeliveryTime = MoveTime.toInt() + (item->getDeliveryDistance())/speed + item->getLoadingTime();
-	item->setDeliveryTime(CargoDeliveryTime);
 	if (!MoveTime.isValid() && !MovingC.isEmpty())
 	{
 		Cargo* tempC;

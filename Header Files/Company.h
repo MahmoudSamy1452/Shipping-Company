@@ -67,10 +67,11 @@ class Company
 	Time GetClock() const;
 	void FileLoading(const string filename);
 	void Simulate();
-	void Assign(Truck* &currN, Truck* &currS, Truck* &currV);
+	void Assign();
 	void AssignMaxW(Truck* &currN, Truck* &currS, Truck* &currV);
 	bool AssignNormal(Cargo* cargo, Truck* &currNT, Truck* &currVT, bool isMaxW);
 	bool AssignSpecial(Cargo* cargo, Truck* &currST, bool isMaxW);
 	bool AssignVIP(Cargo* cargo, Truck* &currVT,Truck* &curNT,Truck* &currST,bool isMaxW);
+	void DeliverCargos();
 	~Company();
 };

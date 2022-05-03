@@ -49,11 +49,15 @@ int Truck::getMaxWaitingCargo(Time Clock) const
 	return Clock.toInt() - MaxWaitingCargo.toInt();
 }
 
-Time Truck::getFirstCargo()
+Time Truck::getFirstArrival()
 {
 	Cargo* cargo;
-	MovingC.peek(cargo);
-	return cargo->getDeliveryTime();
+	if (MovingC.peek(cargo)) 
+	{
+		float dist = cargo->getDeliveryDistance();
+		return Time(MoveTime.toInt() + dist / (float)speed);
+	}
+	return Time();
 }
 
 bool Truck::getisinMaintenance() const

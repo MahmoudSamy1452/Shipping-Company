@@ -202,15 +202,13 @@ void Company::Simulate()
 
 		Assign();
 
-		// MaxW in loaded trucks
+		// Check MaxW for cargos loaded in trucks to move trucks immediately
 		Truck* tempT;
 		for (int i = 0; i < LoadingT.getLength(); i++)
 		{
-			if (LoadingT.dequeue(tempT) && tempT->getMaxWaitingCargo(Clock) == maxW)
+			LoadingT.dequeue(tempT); 
+			if (ChecktoMove(tempT, tempT->getMaxWaitingCargo(Clock) == maxW))
 			{
-				tempT->setMoveTime(Clock);
-				MovingT.enqueue(tempT, tempT->getPriority());
-				numOfMovingCargos += tempT->getNoOfCargos();
 				i--;
 				continue;
 			}
@@ -218,6 +216,7 @@ void Company::Simulate()
 		}
 
 		DeliverCargos();
+
 		if (interface_->getUImode() != Silent)
 		{
 			interface_->PrintHour();
@@ -228,27 +227,164 @@ void Company::Simulate()
 	interface_->End();
 }
 
-bool Company::AssignNormal(Cargo* cargo,Truck*& currNT,Truck*& currVT, bool isMaxW)
+void Company::Assign()
 {
-		if (currNT)
+	Truck* LoadingN = nullptr;
+	Truck* LoadingS = nullptr;
+	Truck* LoadingV = nullptr;
+	Truck* tempT = nullptr;
+	Cargo* ctemp;
+
+	//Getting Trucks to be loaded from LoadingT for each type if available, otherwise would take a new truck from the waiting lists
+	while (!LoadingT.isEmpty())
+	{
+		LoadingT.dequeue(tempT);
+		switch (tempT->getType())
 		{
-			currNT->load(cargo, Clock);
-			if (currNT->isFull() || isMaxW) {
-				currNT->setMoveTime(Clock);
-				MovingT.enqueue(currNT, currNT->calculatefinaltime(Clock));
-				numOfMovingCargos += currNT->getNoOfCargos();
-				if (!WaitingNT.dequeue(currNT))
-					currNT = nullptr;
+		case Normal:
+			LoadingN = tempT;
+			break;
+		case Special:
+			LoadingS = tempT;
+			break;
+		case VIP:
+			LoadingV = tempT;
+			break;
+		}
+	}
+	if (!LoadingN)
+		WaitingNT.dequeue(LoadingN);
+	if (!LoadingS)
+		WaitingST.dequeue(LoadingS);
+	if (!LoadingV)
+		WaitingVT.dequeue(LoadingV);
+
+	//Check for maxW cargos before normal ones
+	AssignMaxW(LoadingN, LoadingS, LoadingV);
+
+	//Normal Assignment
+	while (WaitingVC.peek(ctemp) && AssignVIP(ctemp, LoadingV, LoadingN, LoadingS, false)) 
+			WaitingVC.dequeue(ctemp);
+
+	while (WaitingSC.peek(ctemp) && AssignSpecial(ctemp, LoadingS, false))
+			WaitingSC.dequeue(ctemp);
+
+	while (WaitingNC.getEntry(1, ctemp) && AssignNormal(ctemp, LoadingN, LoadingV, false))
+			WaitingNC.remove(1);
+
+	//Return trucks to loading and waiting lists for printing and to retrieve in the next hour again
+	if (LoadingN && LoadingN->getNoOfCargos() > 0)
+		LoadingT.enqueue(LoadingN);
+	else if (LoadingN)
+		WaitingNT.enqueue(LoadingN, LoadingN->getPriority());
+	if (LoadingS && LoadingS->getNoOfCargos() > 0)
+		LoadingT.enqueue(LoadingS);
+	else if (LoadingS)
+		WaitingST.enqueue(LoadingS, LoadingS->getPriority());
+	if (LoadingV && LoadingV->getNoOfCargos() > 0)
+		LoadingT.enqueue(LoadingV);
+	else if (LoadingV)
+		WaitingVT.enqueue(LoadingV, LoadingV->getPriority());
+}
+
+void Company::AssignMaxW(Truck*& LoadingN, Truck*& LoadingS, Truck*& LoadingV)
+{
+	Cargo* ctemp;
+	LinkedQueue<Cargo*> temp;
+	int waitingtime;
+
+	//VIP cargos are not sorted by arrival time so we must check all cargos for maxW
+	while (WaitingVC.dequeue(ctemp)) 
+	{
+		waitingtime = ctemp->getWaitingTime(Clock);
+		if (!(waitingtime == maxW && AssignVIP(ctemp, LoadingV, LoadingN, LoadingS, true)))
+			temp.enqueue(ctemp);
+	}
+	while (temp.dequeue(ctemp))
+		WaitingVC.enqueue(ctemp, ctemp->getPriority());
+
+	//Normal cargos that may reach maxW are in the front
+	while (WaitingNC.getEntry(1, ctemp)) {
+		waitingtime = ctemp->getWaitingTime(Clock);
+		if (waitingtime == maxW) 
+		{
+			AssignNormal(ctemp, LoadingN, LoadingV, true);
+			WaitingNC.remove(1);
+		}
+		else
+			break;
+	}
+
+	//Special cargos that may reach maxW are in the front
+	while (WaitingSC.peek(ctemp)) {
+		waitingtime = ctemp->getWaitingTime(Clock);
+		if (waitingtime == maxW) 
+		{
+			AssignSpecial(ctemp, LoadingS, true);
+			WaitingSC.dequeue(ctemp);
+		}
+		else 
+			break;
+	}
+}
+
+bool Company::AssignVIP(Cargo* cargo, Truck*& LoadingVT, Truck*& LoadingNT, Truck*& LoadingST, bool isMaxW)
+{
+	if (LoadingVT)
+	{
+		LoadingVT->load(cargo, Clock);
+		if (ChecktoMove(LoadingVT, isMaxW))
+		{
+			//Reset loading special truck
+			LoadingVT = nullptr;
+			WaitingVT.dequeue(LoadingVT);
+		}
+	}
+	else if (LoadingNT)
+	{
+		LoadingNT->load(cargo, Clock);
+		if (ChecktoMove(LoadingNT, isMaxW))
+		{
+			//Reset loading normal truck
+			LoadingNT = nullptr;
+			WaitingNT.dequeue(LoadingNT);
+		}
+	}
+	else if (LoadingST)
+	{
+		LoadingST->load(cargo, Clock);
+		if (ChecktoMove(LoadingST, isMaxW))
+		{
+			//Reset loading special truck
+			LoadingST = nullptr;
+			WaitingST.dequeue(LoadingST);
+		}
+	}
+	else
+		return false;
+	return true;
+}
+
+bool Company::AssignNormal(Cargo* cargo,Truck*& LoadingNT,Truck*& LoadingVT, bool isMaxW)
+{
+		if (LoadingNT)
+		{
+			LoadingNT->load(cargo, Clock);
+			if (ChecktoMove(LoadingNT, isMaxW))
+			{
+				//Reset loading normal truck
+				LoadingNT = nullptr;
+				WaitingNT.dequeue(LoadingNT);
 			}
 		}
-		else if (currVT) {
-			currVT->load(cargo, Clock);
-			if (currVT->isFull() || isMaxW) {
-				currVT->setMoveTime(Clock);
-				MovingT.enqueue(currVT, currVT->calculatefinaltime(Clock));
-				numOfMovingCargos += currVT->getNoOfCargos();
-				if (!WaitingVT.dequeue(currVT))
-					currVT = nullptr;
+		else if (LoadingVT) 
+		{
+			LoadingVT->load(cargo, Clock);
+			if (ChecktoMove(LoadingVT, isMaxW))
+			{
+				//Reset loading VIP truck
+				LoadingVT = nullptr;
+				WaitingVT.dequeue(LoadingVT);
 			}
 		}
 		else
@@ -256,63 +392,19 @@ bool Company::AssignNormal(Cargo* cargo,Truck*& currNT,Truck*& currVT, bool isMa
 		return true;
 }
 
-bool Company::AssignSpecial(Cargo* cargo, Truck*& currST, bool isMaxW)
+bool Company::AssignSpecial(Cargo* cargo, Truck*& LoadingST, bool isMaxW)
 {
-	if (currST) {
-		currST->load(cargo, Clock);
-		if (currST->isFull())
-		{
-			currST->setMoveTime(Clock);
-			MovingT.enqueue(currST, currST->calculatefinaltime(Clock));
-			numOfMovingCargos += currST->getNoOfCargos();
-			if (!WaitingST.dequeue(currST))
-				currST = nullptr;
-		}
-	}
-	else return false;
-	return true;
-}
-
-
-bool Company::AssignVIP(Cargo* cargo, Truck*& currVT, Truck*& currNT, Truck*& currST, bool isMaxW)
-{
-	if (currVT)
+	if (LoadingST) 
 	{
-		currVT->load(cargo, Clock);
-		if (currVT->isFull() || isMaxW)
+		LoadingST->load(cargo, Clock);
+		if (ChecktoMove(LoadingST, isMaxW))
 		{
-			currVT->setMoveTime(Clock);
-			MovingT.enqueue(currVT, currVT->calculatefinaltime(Clock));
-			numOfMovingCargos += currVT->getNoOfCargos();
-			if (!WaitingVT.dequeue(currVT))
-				currVT = nullptr;
+			//Reset loading special truck
+			LoadingST = nullptr;
+			WaitingST.dequeue(LoadingST);
 		}
 	}
-	else if (currNT)
-	{
-		currNT->load(cargo, Clock);
-		if (currNT->isFull() || isMaxW)
-		{
-			currNT->setMoveTime(Clock);
-			MovingT.enqueue(currNT, currNT->calculatefinaltime(Clock));
-			numOfMovingCargos += currNT->getNoOfCargos();
-			if (!WaitingNT.dequeue(currNT))
-				currNT = nullptr;
-		}
-	}
-	else if (currST)
-	{
-		currST->load(cargo, Clock);
-		if (currST->isFull() || isMaxW)
-		{
-			currST->setMoveTime(Clock);
-			MovingT.enqueue(currST, currST->calculatefinaltime(Clock));
-			numOfMovingCargos += currST->getNoOfCargos();
-			if (!WaitingST.dequeue(currST))
-				currST = nullptr;
-		}
-	}
-	else
+	else 
 		return false;
 	return true;
 }
@@ -322,12 +414,11 @@ void Company::DeliverCargos()
 	Cargo* cargo;
 	Truck* tempT;
 	LinkedQueue<Truck*> tempQ;
-	while (!MovingT.isEmpty())
+
+	//Check if any cargos should be delivered now for all moving trucks
+	while (MovingT.dequeue(tempT))
 	{
-		MovingT.dequeue(tempT);
-		while (tempT->getNoOfCargos() > 0)
-		{
-			if (tempT->getFirstCargo().toInt() <= Clock.toInt())
+		while (tempT->getFirstArrival().isValid() &&tempT->getFirstArrival().isTime(Clock))
 			{
 				tempT->unload(cargo);
 				switch (cargo->getType())
@@ -344,14 +435,13 @@ void Company::DeliverCargos()
 				}
 				numOfMovingCargos--;
 			}
-			else
-				break;
-		}
 		tempQ.enqueue(tempT);
 	}
+
+	//Return moving truck to waiting list if became empty or back to movingT if still has cargos
 	while (tempQ.dequeue(tempT))
 	{
-		if (tempT->getNoOfCargos() > 0)
+		if (tempT->getNoOfCargos())
 			MovingT.enqueue(tempT, tempT->calculatefinaltime(Clock));
 		else
 			switch (tempT->getType())
@@ -369,70 +459,18 @@ void Company::DeliverCargos()
 	}
 }
 
-
-void Company::Assign()
+bool Company::ChecktoMove(Truck* truck, bool isMaxW)
 {
-	Truck* currN = nullptr;
-	Truck* currS = nullptr;
-	Truck* currV = nullptr;
-	Truck* tempT = nullptr;
-	while (!LoadingT.isEmpty())
+	if (truck->isFull() || isMaxW)
 	{
-		LoadingT.dequeue(tempT);
-		switch (tempT->getType())
-		{
-		case Normal:
-			currN = tempT;
-			break;
-		case Special:
-			currS = tempT;
-			break;
-		case VIP:
-			currV = tempT;
-			break;
-		}
+		truck->setMoveTime(Clock);
+		MovingT.enqueue(truck, truck->calculatefinaltime(Clock));
+		numOfMovingCargos += truck->getNoOfCargos();
+		return true;
 	}
-	if (!currN)
-		WaitingNT.dequeue(currN);
-	if (!currS)
-		WaitingST.dequeue(currS);
-	if (!currV)
-		WaitingVT.dequeue(currV);
-	Cargo* ctemp;
-	//AssignMaxW(currN, currS, currV);
-	while(WaitingVC.peek(ctemp)){
-		if (AssignVIP(ctemp, currV, currN, currS, false))
-			WaitingVC.dequeue(ctemp);
-		else
-			break;
-	}
-	while(WaitingSC.peek(ctemp))
-	{
-		if(AssignSpecial(ctemp, currS, false))
-			WaitingSC.dequeue(ctemp);
-		else
-		     break;
-	}
-	while(WaitingNC.getEntry(1, ctemp))
-	{
-		if (AssignNormal(ctemp, currN, currV, false))
-			WaitingNC.remove(1);
-		else
-			break;
-	}
-	if (currN && currN->getNoOfCargos() > 0)
-		LoadingT.enqueue(currN);
-	else if(currN)
-		WaitingNT.enqueue(currN, currN->getPriority());	
-	if (currS && currS->getNoOfCargos() > 0)
-		LoadingT.enqueue(currS);
-	else if(currS)
-		WaitingST.enqueue(currS, currS->getPriority());
-	if (currV && currV->getNoOfCargos() > 0)
-		LoadingT.enqueue(currV);
-	else if(currV)
-		WaitingVT.enqueue(currV, currV->getPriority());
+	return false;
 }
+
 
 void Company::PrintWaitingNC()
 {
@@ -499,41 +537,3 @@ Company::~Company()
 	delete interface_;
 }
 
-void Company::AssignMaxW(Truck*& currN, Truck*& currS, Truck*& currV)
-{
-	Cargo* ctemp;
-	LinkedQueue<Cargo*> temp;
-	int waitingtime;
-
-	//VIP
-	while(WaitingVC.dequeue(ctemp)){
-		waitingtime = ctemp->getWaitingTime(Clock);
-		if (waitingtime == maxW)
-			AssignVIP(ctemp, currV, currN, currS, true);
-		else
-			temp.enqueue(ctemp);
-	}
-	while (temp.dequeue(ctemp))
-		WaitingVC.enqueue(ctemp, ctemp->getPriority());
-
-	//Normal
-	while(WaitingNC.getEntry(1, ctemp)){
-	waitingtime = ctemp->getWaitingTime(Clock); 
-	if (waitingtime == maxW) {
-		AssignNormal(ctemp, currN, currV, true);
-		WaitingNC.remove(1);
-	}
-	else
-		break;
-	}
-
-	//Special
-	while(WaitingSC.peek(ctemp)) {
-		waitingtime = ctemp->getWaitingTime(Clock);
-		if (waitingtime == maxW) {
-			AssignSpecial(ctemp, currS, true);
-			WaitingSC.dequeue(ctemp);
-		}
-		else break;
-	}
-}

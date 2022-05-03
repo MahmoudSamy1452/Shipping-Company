@@ -44,6 +44,6 @@ public:
 	float calculatefinaltime(Time Clock);
 	int getPriority() const;
 	int getMaxWaitingCargo(Time Clock) const;
-	Time getFirstCargo();
+	Time getFirstArrival();
 	~Truck();
 };

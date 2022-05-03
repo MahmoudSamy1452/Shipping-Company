@@ -22,8 +22,6 @@ public:
 
 	int toInt() const;
 
-	int toTime(int n); 
-
 	bool operator == (const Time& time) const;
 
 	bool isValid();

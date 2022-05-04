@@ -20,19 +20,19 @@ void Cargo::setType(Type cargoType)
 	this->cargoType = cargoType;
 }
 
-	void Cargo::setLoadedTime(Time t)
-	{
-		loaded_time = t;
-	}
-
-	Time Cargo::getLoadedTime()
-	{
-		return loaded_time;
-	}
-
-void Cargo::setDeliveryTime(Time t)
+void Cargo::setLoadedTime(Time t)
 {
-	deliveryTime = t;
+	loaded_time = t;
+}
+
+Time Cargo::getLoadedTime()
+{
+	return loaded_time;
+}
+
+void Cargo::setCDT(Time t)
+{
+	CDT = t;
 }
 
 void Cargo::addExtraMoney(int money)
@@ -40,9 +40,9 @@ void Cargo::addExtraMoney(int money)
 	cost += money;
 }
 
-Time Cargo::getDeliveryTime()
+Time Cargo::getCDT()
 {
-	return deliveryTime;
+	return CDT;
 }
 
 Type Cargo::getType()

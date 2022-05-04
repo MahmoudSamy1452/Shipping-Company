@@ -16,7 +16,6 @@ Truck::Truck(Type truckType, int capacity, int maintenanceTime, int speed)
 	totalActiveTime = 0;
 	truckID = currtruckID;
 	currtruckID++;
-	isinMaintenance = false;
 }
 
 int Truck::getID() const
@@ -27,6 +26,26 @@ int Truck::getID() const
 Type Truck::getType() const
 {
 	return truckType;
+}
+
+void Truck::setStatus(TruckStatus status)
+{
+	this->status = status;
+}
+
+void Truck::resetJourneys()
+{
+	deliveryJourneys = 0;
+}
+
+void Truck::incrementJourneys()
+{
+	deliveryJourneys++;
+}
+
+int Truck::getDeliveryJourneys() const
+{
+	return deliveryJourneys;
 }
 
 int Truck::getNoOfCargos() const
@@ -54,15 +73,11 @@ Time Truck::getFirstArrival()
 	Cargo* cargo;
 	if (MovingC.peek(cargo)) 
 	{
-		float dist = cargo->getDeliveryDistance();
-		return Time(MoveTime.toInt() + dist / (float)speed);
+		int dist = cargo->getDeliveryDistance();
+		int load = cargo->getLoadingTime();
+		return Time(MoveTime.toInt() + dist / speed + load);
 	}
 	return Time();
-}
-
-bool Truck::getisinMaintenance() const
-{
-	return isinMaintenance;
 }
 
 void Truck::setdeliveryInterval()
@@ -70,27 +85,9 @@ void Truck::setdeliveryInterval()
 	deliveryInterval = 2 * float((distanceOfFurthest / speed)) + sumOfUnloadTimes;
 }
 
-void Truck::setisinMaintenence(bool maintenance)
-{
-	isinMaintenance = maintenance;
-}
-
 void Truck::setMoveTime(const Time& time)
 {
 	MoveTime = time;
-	status = Moving;
-	int CargoDeliveryTime;
-	Cargo* item;
-	LinkedQueue<Cargo*> tempQ;
-	while (!MovingC.isEmpty())
-	{
-		MovingC.dequeue(item);
-		CargoDeliveryTime = MoveTime.toInt() + (item->getDeliveryDistance()) / speed + item->getLoadingTime();
-		item->setDeliveryTime(CargoDeliveryTime);
-		tempQ.enqueue(item);
-	}
-	while (tempQ.dequeue(item))
-		MovingC.enqueue(item, item->getDeliveryDistance());
 }
 
 float Truck::getTotalActiveTime()
@@ -122,6 +119,7 @@ void Truck::load(Cargo* &item, Time clock)
 void Truck::unload(Cargo* &item)
 {
 	MovingC.dequeue(item);
+	item->setLoadedTime(Time());
 	numOfCargos--;
 	if (!MoveTime.isValid() && !MovingC.isEmpty())
 	{

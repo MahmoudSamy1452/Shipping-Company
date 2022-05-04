@@ -17,7 +17,7 @@ private:
 	int ID;
 	int deliveryDistance;
 	int cost;
-	Time deliveryTime;
+	Time CDT;
 
 public:
 
@@ -33,9 +33,9 @@ public:
 	Time getLoadedTime();
 
 
-	void setDeliveryTime(Time t);
+	void setCDT(Time t);
 
-	Time getDeliveryTime();
+	Time getCDT();
 
 	Type getType();
 

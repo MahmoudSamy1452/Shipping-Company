@@ -22,7 +22,6 @@ private:
 	Time MoveTime;
 	int distanceOfFurthest; //To be used in functions total active time and delivery interval  
 	int sumOfUnloadTimes;
-	bool isinMaintenance;
 	TruckStatus status;
 	Time MaxWaitingCargo;
 public:
@@ -30,13 +29,15 @@ public:
 	Truck(Type truckType, int capacity, int maintenanceTime, int speed);
 	int getID() const;
 	Type getType() const;
+	void setStatus(TruckStatus);
+	void resetJourneys();
+	int getDeliveryJourneys() const;
+	void incrementJourneys();
 	int getNoOfCargos() const;
 	bool isFull() const;
-	bool getisinMaintenance() const;
 	void PrintMovingCargo() const;
 	void setMoveTime(const Time& time);
 	void setdeliveryInterval();
-	void setisinMaintenence(bool maintenance);
 	float getTotalActiveTime();
 	float getTruckUtilizationTime(int simulationTime);
 	void load(Cargo*& item, Time clock);

@@ -306,11 +306,8 @@ void Company::AssignMaxW(Truck*& LoadingN, Truck*& LoadingS, Truck*& LoadingV)
 	//Normal cargos that may reach maxW are in the front
 	while (WaitingNC.getEntry(1, ctemp)) {
 		waitingtime = ctemp->getWaitingTime(Clock);
-		if (waitingtime == maxW) 
-		{
-			AssignNormal(ctemp, LoadingN, LoadingV, true);
+		if (waitingtime == maxW && AssignNormal(ctemp, LoadingN, LoadingV, true))
 			WaitingNC.remove(1);
-		}
 		else
 			break;
 	}
@@ -318,11 +315,8 @@ void Company::AssignMaxW(Truck*& LoadingN, Truck*& LoadingS, Truck*& LoadingV)
 	//Special cargos that may reach maxW are in the front
 	while (WaitingSC.peek(ctemp)) {
 		waitingtime = ctemp->getWaitingTime(Clock);
-		if (waitingtime == maxW) 
-		{
-			AssignSpecial(ctemp, LoadingS, true);
+		if (waitingtime == maxW && AssignSpecial(ctemp, LoadingS, true))
 			WaitingSC.dequeue(ctemp);
-		}
 		else 
 			break;
 	}
@@ -418,9 +412,10 @@ void Company::DeliverCargos()
 	//Check if any cargos should be delivered now for all moving trucks
 	while (MovingT.dequeue(tempT))
 	{
-		while (tempT->getFirstArrival().isValid() &&tempT->getFirstArrival().isTime(Clock))
+		while (tempT->getFirstArrival().isValid() && tempT->getFirstArrival().isTime(Clock))
 			{
 				tempT->unload(cargo);
+				cargo->setCDT(Clock);
 				switch (cargo->getType())
 				{
 				case Normal:
@@ -444,6 +439,15 @@ void Company::DeliverCargos()
 		if (tempT->getNoOfCargos())
 			MovingT.enqueue(tempT, tempT->calculatefinaltime(Clock));
 		else
+		{
+			tempT->incrementJourneys();
+			if (tempT->getDeliveryJourneys() == TripsBeforeCheckup)
+			{
+				tempT->resetJourneys();
+				tempT->setStatus(Maintenance);
+				TrucksInMaintenance.enqueue(tempT, tempT->calculatefinaltime(Clock));
+				continue;
+			}
 			switch (tempT->getType())
 			{
 			case Normal:
@@ -456,6 +460,7 @@ void Company::DeliverCargos()
 				WaitingVT.enqueue(tempT, tempT->getPriority());
 				break;
 			}
+		}
 	}
 }
 
@@ -463,6 +468,7 @@ bool Company::ChecktoMove(Truck* truck, bool isMaxW)
 {
 	if (truck->isFull() || isMaxW)
 	{
+		truck->setStatus(Moving);
 		truck->setMoveTime(Clock);
 		MovingT.enqueue(truck, truck->calculatefinaltime(Clock));
 		numOfMovingCargos += truck->getNoOfCargos();

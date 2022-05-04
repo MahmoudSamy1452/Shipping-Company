@@ -176,7 +176,7 @@ void Company::Simulate()
 		interface_->StartSilent();
 	}
 
-	while(!EventList.isEmpty() || numOfCargos != DeliveredNC.getLength()+DeliveredSC.getLength()+DeliveredVC.getLength() || !TrucksInMaintenance.isEmpty())
+	while(!EventList.isEmpty() || numOfCargos != DeliveredNC.getLength()+DeliveredSC.getLength()+DeliveredVC.getLength() || !TrucksInMaintenance.isEmpty() || !MovingT.isEmpty())
 	{
 		EventList.peek(eve);
 		while (eve->getTime() == Clock && !EventList.isEmpty())
@@ -186,6 +186,9 @@ void Company::Simulate()
 			delete eve;
 			EventList.peek(eve);
 		}
+
+		//Check if any trucks in maintenance are done to return them to waiting
+		CheckCheckupTrucks();
 
 		//Check if any Normal Cargo reached autoP and promotes it
 		Cargo* C;
@@ -199,8 +202,6 @@ void Company::Simulate()
 				delete autoPAction;
 			}
 		}
-
-		CheckCheckupTrucks();
 
 		Assign();
 
@@ -228,6 +229,7 @@ void Company::Simulate()
 	}
 	interface_->End();
 }
+
 void Company::CheckCheckupTrucks()
 {
 	Truck* truck;

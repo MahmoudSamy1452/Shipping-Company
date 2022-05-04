@@ -25,6 +25,9 @@ private:
 	TruckStatus status;
 	Time MaxWaitingCargo;
 	Time finalTime;
+	int countV;
+	int countN;
+	int countS;
 public:
 	friend ostream& operator <<(ostream& output, Truck*& c);
 	Truck(Type truckType, int capacity, int maintenanceTime, int speed);
@@ -36,6 +39,10 @@ public:
 	int getDeliveryJourneys() const;
 	void incrementJourneys();
 	int getNoOfCargos() const;
+	int getCountV();
+	int getCountS();
+	int getCountN();
+	Cargo* getDifferentCargo(Type t);
 	bool isFull() const;
 	void PrintMovingCargo() const;
 	void setMoveTime(const Time& time);

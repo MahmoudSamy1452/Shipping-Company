@@ -202,6 +202,8 @@ void Company::Simulate()
 
 		CheckCheckupTrucks();
 
+		DeliverCargos();
+
 		Assign();
 
 		// Check MaxW for cargos loaded in trucks to move trucks immediately
@@ -217,8 +219,6 @@ void Company::Simulate()
 			LoadingT.enqueue(tempT);
 		}
 
-		DeliverCargos();
-
 		if (interface_->getUImode() != Silent)
 		{
 			interface_->PrintHour();
@@ -228,6 +228,7 @@ void Company::Simulate()
 	}
 	interface_->End();
 }
+
 void Company::CheckCheckupTrucks()
 {
 	Truck* truck;
@@ -275,6 +276,7 @@ void Company::Assign()
 			break;
 		}
 	}
+
 	if (!LoadingN)
 		WaitingNT.dequeue(LoadingN);
 	if (!LoadingS)
@@ -285,6 +287,20 @@ void Company::Assign()
 	//Check for maxW cargos before normal ones
 	AssignMaxW(LoadingN, LoadingS, LoadingV);
 
+	if (LoadingV && !LoadingV->getNoOfCargos()) 
+	{
+		if (LoadingN)
+			for (int i = 0; i < LoadingN->getCountV(); i++)
+				AssignVIP(LoadingN->getDifferentCargo(VIP), LoadingV, LoadingN,LoadingS, false);
+		if (LoadingS)
+			for (int i = 0; i < LoadingS->getCountV(); i++)
+				AssignVIP(LoadingS->getDifferentCargo(VIP), LoadingV, LoadingN, LoadingS, false);
+	}
+
+	if (LoadingN && !LoadingN->getNoOfCargos() && LoadingV)
+		for (int i = 0; i < LoadingV->getCountN(); i++)
+			AssignNormal(LoadingV->getDifferentCargo(Normal), LoadingN, LoadingV, false);
+		
 	//Normal Assignment
 	while (WaitingVC.peek(ctemp) && AssignVIP(ctemp, LoadingV, LoadingN, LoadingS, false)) 
 			WaitingVC.dequeue(ctemp);

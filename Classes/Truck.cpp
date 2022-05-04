@@ -17,6 +17,9 @@ Truck::Truck(Type truckType, int capacity, int maintenanceTime, int speed)
 	totalActiveTime = 0;
 	truckID = currtruckID;
 	currtruckID++;
+	countN = 0;
+	countS = 0;
+	countV = 0;
 }
 
 int Truck::getID() const
@@ -110,6 +113,18 @@ float Truck::getTruckUtilizationTime(int simulationTime)
 
 void Truck::load(Cargo* &item, Time clock)
 {
+	switch(item->getType())
+	{
+	case Normal:
+		countN++;
+		break;
+	case VIP:
+		countV++;
+		break;
+	case Special:
+		countS++;
+		break;
+	}
 	MovingC.enqueue(item,item->getDeliveryDistance());
 	item->setLoadedTime(clock);
 	numOfCargos++;
@@ -123,6 +138,18 @@ void Truck::load(Cargo* &item, Time clock)
 void Truck::unload(Cargo* &item)
 {
 	MovingC.dequeue(item);
+	switch (item->getType())
+	{
+	case Normal:
+		countN--;
+		break;
+	case VIP:
+		countV--;
+		break;
+	case Special:
+		countS--;
+		break;
+	}
 	item->setLoadedTime(Time());
 	sumOfUnloadTimes -= item->getLoadingTime();
 	numOfCargos--;
@@ -159,6 +186,36 @@ int Truck::calculatefinaltime(Time Clock)
 		break;
 	}
 	return finalTime.toInt();
+}
+
+int Truck::getCountS()
+{
+	return countS;
+}
+
+int Truck::getCountV()
+{
+	return countV;
+}
+int Truck::getCountN()
+{
+	return countN;
+}
+
+Cargo* Truck::getDifferentCargo(Type t)
+{
+	Cargo* cargo, *chosenCargo;
+	LinkedQueue<Cargo*> tempQ;
+	while(MovingC.dequeue(chosenCargo))
+	{
+		if (chosenCargo->getType() == t)
+		{
+			while (tempQ.dequeue(cargo))
+				MovingC.enqueue(cargo, cargo->getDeliveryDistance());
+			return chosenCargo;
+		}
+		tempQ.enqueue(chosenCargo);
+	}
 }
 
 void Truck::PrintMovingCargo() const

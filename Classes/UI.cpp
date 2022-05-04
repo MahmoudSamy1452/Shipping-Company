@@ -27,7 +27,7 @@ void UI::PrintTruck(Truck* t)
 			break;
 		}
 	}
-	else if (t->getisinMaintenance()) {
+	else if (t->getStatus() == Maintenance) {
 		switch (t->getType())
 		{
 		case Normal:

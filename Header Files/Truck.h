@@ -24,12 +24,14 @@ private:
 	int sumOfUnloadTimes;
 	TruckStatus status;
 	Time MaxWaitingCargo;
+	Time finalTime;
 public:
 	friend ostream& operator <<(ostream& output, Truck*& c);
 	Truck(Type truckType, int capacity, int maintenanceTime, int speed);
 	int getID() const;
 	Type getType() const;
 	void setStatus(TruckStatus);
+	TruckStatus getStatus() const;
 	void resetJourneys();
 	int getDeliveryJourneys() const;
 	void incrementJourneys();
@@ -42,9 +44,10 @@ public:
 	float getTruckUtilizationTime(int simulationTime);
 	void load(Cargo*& item, Time clock);
 	void unload(Cargo*& item);
-	float calculatefinaltime(Time Clock);
+	int calculatefinaltime(Time Clock);
 	int getPriority() const;
 	int getMaxWaitingCargo(Time Clock) const;
 	Time getFirstArrival();
+	Time getfinalTime() const;
 	~Truck();
 };

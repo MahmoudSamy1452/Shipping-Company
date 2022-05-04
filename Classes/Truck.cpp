@@ -1,4 +1,5 @@
 #include "../Header Files/Truck.h"
+#include <cmath>
 
 int Truck::currtruckID = 1;
 
@@ -31,6 +32,11 @@ Type Truck::getType() const
 void Truck::setStatus(TruckStatus status)
 {
 	this->status = status;
+}
+
+TruckStatus Truck::getStatus() const
+{
+	return status;
 }
 
 void Truck::resetJourneys()
@@ -73,16 +79,16 @@ Time Truck::getFirstArrival()
 	Cargo* cargo;
 	if (MovingC.peek(cargo)) 
 	{
-		int dist = cargo->getDeliveryDistance();
+		float dist = cargo->getDeliveryDistance();
 		int load = cargo->getLoadingTime();
-		return Time(MoveTime.toInt() + dist / speed + load);
+		return Time(MoveTime.toInt() + ceil(dist / speed) + load);
 	}
 	return Time();
 }
 
 void Truck::setdeliveryInterval()
 {
-	deliveryInterval = 2 * float((distanceOfFurthest / speed)) + sumOfUnloadTimes;
+	deliveryInterval = ceil(2 *(float)distanceOfFurthest / speed + sumOfUnloadTimes);
 }
 
 void Truck::setMoveTime(const Time& time)
@@ -109,8 +115,6 @@ void Truck::load(Cargo* &item, Time clock)
 	numOfCargos++;
 	if(distanceOfFurthest < item->getDeliveryDistance())
 		distanceOfFurthest = item->getDeliveryDistance();
-	if (numOfCargos == capacity)
-		setdeliveryInterval();
 	sumOfUnloadTimes += item->getLoadingTime();
 	if(numOfCargos == 1)
 		MaxWaitingCargo = clock;
@@ -120,6 +124,7 @@ void Truck::unload(Cargo* &item)
 {
 	MovingC.dequeue(item);
 	item->setLoadedTime(Time());
+	sumOfUnloadTimes -= item->getLoadingTime();
 	numOfCargos--;
 	if (!MoveTime.isValid() && !MovingC.isEmpty())
 	{
@@ -140,21 +145,30 @@ void Truck::unload(Cargo* &item)
 	}
 }
 
-float Truck::calculatefinaltime(Time Clock)
+int Truck::calculatefinaltime(Time Clock)
 {
 	switch (status) {
 	case Moving:
-		return (Clock.toInt() + deliveryInterval);
+		finalTime = Time(Clock.toInt() + deliveryInterval);
+		break;
 	case Loading:
-		return (Clock.toInt() + sumOfUnloadTimes);
+		finalTime = Time(Clock.toInt() + sumOfUnloadTimes);
+		break;
 	case Maintenance:
-		return (Clock.toInt() + maintenanceTime);
+		finalTime = Time(Clock.toInt() + maintenanceTime);
+		break;
 	}
+	return finalTime.toInt();
 }
 
 void Truck::PrintMovingCargo() const
 {
 	MovingC.Print();
+}
+
+Time Truck::getfinalTime() const
+{
+	return finalTime;
 }
 
 Truck::~Truck()

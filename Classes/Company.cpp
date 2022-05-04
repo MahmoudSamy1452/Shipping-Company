@@ -176,7 +176,7 @@ void Company::Simulate()
 		interface_->StartSilent();
 	}
 
-	while(!EventList.isEmpty() || numOfCargos != DeliveredNC.getLength()+DeliveredSC.getLength()+DeliveredVC.getLength())
+	while(!EventList.isEmpty() || numOfCargos != DeliveredNC.getLength()+DeliveredSC.getLength()+DeliveredVC.getLength() || !TrucksInMaintenance.isEmpty())
 	{
 		EventList.peek(eve);
 		while (eve->getTime() == Clock && !EventList.isEmpty())
@@ -199,6 +199,8 @@ void Company::Simulate()
 				delete autoPAction;
 			}
 		}
+
+		CheckCheckupTrucks();
 
 		Assign();
 
@@ -225,6 +227,27 @@ void Company::Simulate()
 		count++;
 	}
 	interface_->End();
+}
+void Company::CheckCheckupTrucks()
+{
+	Truck* truck;
+	while(TrucksInMaintenance.peek(truck) && truck->getfinalTime().isTime(Clock))
+	{
+		TrucksInMaintenance.dequeue(truck);
+		truck->setStatus(Waiting);
+		switch (truck->getType())
+		{
+		case Normal:
+			WaitingNT.enqueue(truck, truck->getPriority());
+			break;
+		case Special:
+			WaitingST.enqueue(truck, truck->getPriority());
+			break;
+		case VIP:
+			WaitingVT.enqueue(truck, truck->getPriority());
+			break;
+		}
+	}
 }
 
 void Company::Assign()
@@ -436,8 +459,8 @@ void Company::DeliverCargos()
 	//Return moving truck to waiting list if became empty or back to movingT if still has cargos
 	while (tempQ.dequeue(tempT))
 	{
-		if (tempT->getNoOfCargos())
-			MovingT.enqueue(tempT, tempT->calculatefinaltime(Clock));
+		if (tempT->getfinalTime().toInt() > Clock.toInt())
+			MovingT.enqueue(tempT, tempT->getfinalTime().toInt());
 		else
 		{
 			tempT->incrementJourneys();
@@ -469,6 +492,7 @@ bool Company::ChecktoMove(Truck* truck, bool isMaxW)
 	if (truck->isFull() || isMaxW)
 	{
 		truck->setStatus(Moving);
+		truck->setdeliveryInterval();
 		truck->setMoveTime(Clock);
 		MovingT.enqueue(truck, truck->calculatefinaltime(Clock));
 		numOfMovingCargos += truck->getNoOfCargos();

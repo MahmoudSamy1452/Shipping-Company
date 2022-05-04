@@ -74,5 +74,6 @@ class Company
 	bool AssignVIP(Cargo* cargo, Truck* &currVT,Truck* &curNT,Truck* &currST,bool isMaxW);
 	void DeliverCargos();
 	bool ChecktoMove(Truck* truck, bool isMaxW);
+	void CheckCheckupTrucks();
 	~Company();
 };

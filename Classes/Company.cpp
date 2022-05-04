@@ -307,7 +307,7 @@ void Company::AssignMaxW(Truck*& LoadingN, Truck*& LoadingS, Truck*& LoadingV)
 	while (WaitingNC.getEntry(1, ctemp)) {
 		waitingtime = ctemp->getWaitingTime(Clock);
 		if (waitingtime == maxW && AssignNormal(ctemp, LoadingN, LoadingV, true))
-			WaitingNC.remove(1);
+				WaitingNC.remove(1);
 		else
 			break;
 	}
@@ -316,7 +316,7 @@ void Company::AssignMaxW(Truck*& LoadingN, Truck*& LoadingS, Truck*& LoadingV)
 	while (WaitingSC.peek(ctemp)) {
 		waitingtime = ctemp->getWaitingTime(Clock);
 		if (waitingtime == maxW && AssignSpecial(ctemp, LoadingS, true))
-			WaitingSC.dequeue(ctemp);
+				WaitingSC.dequeue(ctemp);
 		else 
 			break;
 	}

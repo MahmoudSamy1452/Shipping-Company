@@ -68,7 +68,7 @@ class Company
 	void FileLoading(const string filename);
 	void Simulate();
 	void Assign();
-	void AssignMaxW(Truck* &currN, Truck* &currS, Truck* &currV);
+	void AssignMaxW(Truck* &LoadingN, Truck* &LoadingS, Truck* &LoadingV);
 	bool AssignNormal(Cargo* cargo, Truck* &currNT, Truck* &currVT, bool isMaxW);
 	bool AssignSpecial(Cargo* cargo, Truck* &currST, bool isMaxW);
 	bool AssignVIP(Cargo* cargo, Truck* &currVT,Truck* &curNT,Truck* &currST,bool isMaxW);

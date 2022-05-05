@@ -28,6 +28,7 @@ private:
 	int countV;
 	int countN;
 	int countS;
+	int prevLoad;
 public:
 	friend ostream& operator <<(ostream& output, Truck*& c);
 	Truck(Type truckType, int capacity, int maintenanceTime, int speed);
@@ -56,5 +57,7 @@ public:
 	int getMaxWaitingCargo(Time Clock) const;
 	Time getFirstArrival();
 	Time getfinalTime() const;
+	void resetFinalTime();
+	void resetLoad();
 	~Truck();
 };

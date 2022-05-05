@@ -20,6 +20,7 @@ Truck::Truck(Type truckType, int capacity, int maintenanceTime, int speed)
 	countN = 0;
 	countS = 0;
 	countV = 0;
+	prevLoad = 0;
 }
 
 int Truck::getID() const
@@ -84,7 +85,7 @@ Time Truck::getFirstArrival()
 	{
 		float dist = cargo->getDeliveryDistance();
 		int load = cargo->getLoadingTime();
-		return Time(MoveTime.toInt() + ceil(dist / speed) + load);
+		return Time(MoveTime.toInt() + ceil(dist / speed) + prevLoad + load);
 	}
 	return Time();
 }
@@ -137,7 +138,11 @@ void Truck::load(Cargo* &item, Time clock)
 
 void Truck::unload(Cargo* &item)
 {
-	MovingC.dequeue(item);
+	if (!item)
+	{
+		MovingC.dequeue(item);
+		prevLoad += item->getLoadingTime();
+	}
 	switch (item->getType())
 	{
 	case Normal:
@@ -212,15 +217,26 @@ Cargo* Truck::getDifferentCargo(Type t)
 		{
 			while (tempQ.dequeue(cargo))
 				MovingC.enqueue(cargo, cargo->getDeliveryDistance());
+			unload(chosenCargo);
 			return chosenCargo;
 		}
 		tempQ.enqueue(chosenCargo);
 	}
 }
 
+void Truck::resetFinalTime() 
+{
+	finalTime = Time();
+}
+
 void Truck::PrintMovingCargo() const
 {
 	MovingC.Print();
+}
+
+void Truck::resetLoad()
+{
+	prevLoad = 0;
 }
 
 Time Truck::getfinalTime() const

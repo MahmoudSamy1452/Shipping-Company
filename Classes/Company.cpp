@@ -187,9 +187,6 @@ void Company::Simulate()
 			EventList.peek(eve);
 		}
 
-		//Check if any trucks in maintenance are done to return them to waiting
-		CheckCheckupTrucks();
-
 		//Check if any Normal Cargo reached autoP and promotes it
 		Cargo* C;
 		for(int i = 1; i < WaitingNC.getLength() + 1; i++)
@@ -203,6 +200,7 @@ void Company::Simulate()
 			}
 		}
 
+		//Check if any trucks in maintenance are done to return them to waiting
 		CheckCheckupTrucks();
 
 		DeliverCargos();
@@ -211,15 +209,13 @@ void Company::Simulate()
 
 		// Check MaxW for cargos loaded in trucks to move trucks immediately
 		Truck* tempT;
-		for (int i = 0; i < LoadingT.getLength(); i++)
+		int n = LoadingT.getLength();
+		for (int i = 0; i < n; i++)
 		{
-			LoadingT.dequeue(tempT); 
-			if (ChecktoMove(tempT, tempT->getMaxWaitingCargo(Clock) == maxW))
-			{
-				i--;
-				continue;
-			}
-			LoadingT.enqueue(tempT);
+			LoadingT.dequeue(tempT);
+			ChecktoMove(tempT, tempT->getMaxWaitingCargo(Clock) == maxW);
+			if(tempT)
+				LoadingT.enqueue(tempT);
 		}
 
 		if (interface_->getUImode() != Silent)
@@ -237,6 +233,7 @@ void Company::CheckCheckupTrucks()
 	Truck* truck;
 	while(TrucksInMaintenance.peek(truck) && truck->getfinalTime().isTime(Clock))
 	{
+		truck->resetFinalTime();
 		TrucksInMaintenance.dequeue(truck);
 		truck->setStatus(Waiting);
 		switch (truck->getType())
@@ -263,9 +260,16 @@ void Company::Assign()
 	Cargo* ctemp;
 
 	//Getting Trucks to be loaded from LoadingT for each type if available, otherwise would take a new truck from the waiting lists
-	while (!LoadingT.isEmpty())
+	int numofLoadingT = LoadingT.getLength();
+	for(int i = 0; i < numofLoadingT; i++)
 	{
 		LoadingT.dequeue(tempT);
+		if (tempT->isFull())
+		{
+			ChecktoMove(tempT, false);
+			continue;
+		}
+		
 		switch (tempT->getType())
 		{
 		case Normal:
@@ -292,18 +296,88 @@ void Company::Assign()
 
 	if (LoadingV && !LoadingV->getNoOfCargos()) 
 	{
+		numofLoadingT = LoadingT.getLength();
+		for (int i = 0; i < numofLoadingT; i++)
+		{
+			LoadingT.dequeue(tempT);
+			if (tempT->getType() == VIP)
+			{
+				LoadingT.enqueue(tempT);
+				continue;
+			}
+			for (int i = 0; i < tempT->getCountV(); i++)
+				if(AssignVIP(tempT->getDifferentCargo(Normal), LoadingV, LoadingN, LoadingS, false))
+					i--;
+			if (tempT->getNoOfCargos())
+				LoadingT.enqueue(tempT);
+			else
+			{
+				tempT->resetFinalTime();
+				WaitingVT.enqueue(tempT, tempT->getPriority());
+			}
+		}
 		if (LoadingN)
+		{
 			for (int i = 0; i < LoadingN->getCountV(); i++)
-				AssignVIP(LoadingN->getDifferentCargo(VIP), LoadingV, LoadingN,LoadingS, false);
+				if (AssignVIP(LoadingN->getDifferentCargo(VIP), LoadingV, LoadingN, LoadingS, false))
+					i--;
+			if (!LoadingV->getNoOfCargos())
+			{
+				WaitingVT.enqueue(LoadingV, LoadingV->getPriority());
+				WaitingVT.dequeue(LoadingV);
+			}
+		}
 		if (LoadingS)
+		{
 			for (int i = 0; i < LoadingS->getCountV(); i++)
-				AssignVIP(LoadingS->getDifferentCargo(VIP), LoadingV, LoadingN, LoadingS, false);
+				if (AssignVIP(LoadingS->getDifferentCargo(VIP), LoadingV, LoadingN, LoadingS, false))
+					i--;
+			if (!LoadingS->getNoOfCargos())
+			{
+				WaitingST.enqueue(LoadingS, LoadingS->getPriority());
+				WaitingST.dequeue(LoadingS);
+			}
+		}
 	}
 
-	if (LoadingN && !LoadingN->getNoOfCargos() && LoadingV)
-		for (int i = 0; i < LoadingV->getCountN(); i++)
-			AssignNormal(LoadingV->getDifferentCargo(Normal), LoadingN, LoadingV, false);
-		
+	if (LoadingN && !LoadingN->getNoOfCargos())
+	{
+		Truck* tempT;
+		int numofLoadingT = LoadingT.getLength();
+		for (int i = 0; i < numofLoadingT; i++)
+		{
+			LoadingT.dequeue(tempT);
+			if (tempT->getType() != VIP)
+			{
+				LoadingT.enqueue(tempT);
+				continue;
+			}
+			for (int i = 0; i < tempT->getCountN(); i++)
+			{
+				if(AssignNormal(tempT->getDifferentCargo(Normal), LoadingN, LoadingV, false))
+					i--;
+			}
+			if(tempT->getNoOfCargos())
+				LoadingT.enqueue(tempT);
+			else
+			{
+				tempT->resetFinalTime();
+				WaitingVT.enqueue(tempT, tempT->getPriority());
+			}
+		}
+		if (LoadingV)
+		{
+			for (int i = 0; i < LoadingV->getCountN(); i++)
+				if(AssignNormal(LoadingV->getDifferentCargo(Normal), LoadingN, LoadingV, false))
+					i--;
+			if (!LoadingV->getNoOfCargos())
+			{
+				WaitingVT.enqueue(LoadingV, LoadingV->getPriority());
+				WaitingVT.dequeue(LoadingV);
+			}
+		}
+	}
+
 	//Normal Assignment
 	while (WaitingVC.peek(ctemp) && AssignVIP(ctemp, LoadingV, LoadingN, LoadingS, false)) 
 			WaitingVC.dequeue(ctemp);
@@ -369,32 +443,23 @@ bool Company::AssignVIP(Cargo* cargo, Truck*& LoadingVT, Truck*& LoadingNT, Truc
 	if (LoadingVT)
 	{
 		LoadingVT->load(cargo, Clock);
-		if (ChecktoMove(LoadingVT, isMaxW))
-		{
-			//Reset loading special truck
-			LoadingVT = nullptr;
+		ChecktoMove(LoadingVT, isMaxW);
+		if (!LoadingVT)
 			WaitingVT.dequeue(LoadingVT);
-		}
 	}
 	else if (LoadingNT)
 	{
 		LoadingNT->load(cargo, Clock);
-		if (ChecktoMove(LoadingNT, isMaxW))
-		{
-			//Reset loading normal truck
-			LoadingNT = nullptr;
+		ChecktoMove(LoadingNT, isMaxW);
+		if (!LoadingNT)
 			WaitingNT.dequeue(LoadingNT);
-		}
 	}
 	else if (LoadingST)
 	{
 		LoadingST->load(cargo, Clock);
-		if (ChecktoMove(LoadingST, isMaxW))
-		{
-			//Reset loading special truck
-			LoadingST = nullptr;
+		ChecktoMove(LoadingST, isMaxW);
+		if (!LoadingST)
 			WaitingST.dequeue(LoadingST);
-		}
 	}
 	else
 		return false;
@@ -403,42 +468,35 @@ bool Company::AssignVIP(Cargo* cargo, Truck*& LoadingVT, Truck*& LoadingNT, Truc
 
 bool Company::AssignNormal(Cargo* cargo,Truck*& LoadingNT,Truck*& LoadingVT, bool isMaxW)
 {
-		if (LoadingNT)
-		{
-			LoadingNT->load(cargo, Clock);
-			if (ChecktoMove(LoadingNT, isMaxW))
-			{
-				//Reset loading normal truck
-				LoadingNT = nullptr;
-				WaitingNT.dequeue(LoadingNT);
-			}
-		}
-		else if (LoadingVT) 
-		{
-			LoadingVT->load(cargo, Clock);
-			if (ChecktoMove(LoadingVT, isMaxW))
-			{
-				//Reset loading VIP truck
-				LoadingVT = nullptr;
-				WaitingVT.dequeue(LoadingVT);
-			}
-		}
-		else
-			return false;
-		return true;
+	if (LoadingNT)
+	{
+		LoadingNT->load(cargo, Clock);
+		ChecktoMove(LoadingNT, isMaxW);
+		if (!LoadingNT)
+			WaitingNT.dequeue(LoadingNT);
+	}
+	else if (LoadingVT) 
+	{
+		LoadingVT->load(cargo, Clock);
+		ChecktoMove(LoadingVT, isMaxW);
+		if (!LoadingVT)
+			WaitingVT.dequeue(LoadingVT);
+	}
+	else
+		return false;
+	return true;
 }
+
+
 
 bool Company::AssignSpecial(Cargo* cargo, Truck*& LoadingST, bool isMaxW)
 {
 	if (LoadingST) 
 	{
 		LoadingST->load(cargo, Clock);
-		if (ChecktoMove(LoadingST, isMaxW))
-		{
-			//Reset loading special truck
-			LoadingST = nullptr;
+		ChecktoMove(LoadingST, isMaxW);
+		if (!LoadingST)
 			WaitingST.dequeue(LoadingST);
-		}
 	}
 	else 
 		return false;
@@ -454,8 +512,9 @@ void Company::DeliverCargos()
 	//Check if any cargos should be delivered now for all moving trucks
 	while (MovingT.dequeue(tempT))
 	{
-		while (tempT->getFirstArrival().isValid() && tempT->getFirstArrival().isTime(Clock))
+		while (tempT->getFirstArrival().isTime(Clock))
 			{
+				cargo = nullptr;
 				tempT->unload(cargo);
 				cargo->setCDT(Clock);
 				switch (cargo->getType())
@@ -482,6 +541,7 @@ void Company::DeliverCargos()
 			MovingT.enqueue(tempT, tempT->getfinalTime().toInt());
 		else
 		{
+			tempT->resetFinalTime();
 			tempT->incrementJourneys();
 			if (tempT->getDeliveryJourneys() == TripsBeforeCheckup)
 			{
@@ -506,18 +566,30 @@ void Company::DeliverCargos()
 	}
 }
 
-bool Company::ChecktoMove(Truck* truck, bool isMaxW)
+void Company::ChecktoMove(Truck*& truck, bool isMaxW)
 {
-	if (truck->isFull() || isMaxW)
+	if (truck && truck->getfinalTime().isTime(Clock))
 	{
+		truck->resetLoad();
+		truck->resetFinalTime();
 		truck->setStatus(Moving);
 		truck->setdeliveryInterval();
 		truck->setMoveTime(Clock);
 		MovingT.enqueue(truck, truck->calculatefinaltime(Clock));
 		numOfMovingCargos += truck->getNoOfCargos();
-		return true;
+		truck = nullptr;
+		return;
 	}
-	return false;
+	truck->setStatus(Loading);
+	if (truck->isFull() || isMaxW)
+	{
+		if (!truck->getfinalTime().isValid())
+		{
+			truck->calculatefinaltime(Clock);
+		}
+		LoadingT.enqueue(truck);
+		truck = nullptr;
+	}
 }
 
 
